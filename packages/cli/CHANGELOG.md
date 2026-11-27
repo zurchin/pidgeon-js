@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.0
+
+- Pidgeon is now Zurchin: this version is published as `@zurchin/cli`, and the last `@zurchin/cli` (2.7.0) only re-exports it and says so once.
+  The Zurchin package's command is `zurchin`; `pidgeon` stays with the last `@zurchin/cli`.
+- The default host is `https://zurchin.com`. pidgeon.ai keeps answering the API for six months.
+- The source repository is `zurchin/pidgeon-js`.
+
+## 2.6.0
+
+- `ZURCHIN_API_KEY` and `ZURCHIN_BASE_URL` work beside `PIDGEON_API_KEY` and
+  `PIDGEON_BASE_URL`, and win when both are set; `pidgeon status` says which key it used.
+
 ## 2.5.2
 
 - `pidgeon --help` calls agents' records agent identities, optional for an inbox;

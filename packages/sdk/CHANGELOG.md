@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.16.0
+
+- Pidgeon is now Zurchin: this version is published as `@zurchin/sdk`, and the last `@zurchin/sdk` (2.16.0) only re-exports it and says so once.
+- The default host is `https://zurchin.com`. pidgeon.ai keeps answering the API for six months.
+- The source repository is `zurchin/pidgeon-js`.
+
+## 2.15.0
+
+- Pidgeon is becoming Zurchin, and every setting answers to both names: `ZURCHIN_API_KEY`,
+  `ZURCHIN_BASE_URL`, `ZURCHIN_CONFIG_DIR`, `ZURCHIN_AGENT_KEY` and `ZURCHIN_DIRECTORY` win
+  when set, and each `PIDGEON_` one works as before. `envSetting(name)` reads one that way;
+  `apiKeyVariable()` (in `/node`) says which key variable is set.
+- `Zurchin` and `ZurchinError` are `Pidgeon` and `PidgeonError` under the new name.
+- `DEFAULT_ISSUER` is `DEFAULT_BASE_URL`, so the host is said once. Both are still
+  `https://pidgeon.ai`.
+
 ## 2.14.0
 
 - `keys.deliverToVercel({ name, vercelProjectId, envName, targets? })`: make a key and
@@ -37,7 +53,7 @@
   Perplexity-User, …), with `declared` (`name`, `operator`, `purpose`, and `ip`:
   `confirmed`, `mismatch` or `unchecked` against the vendor's published addresses). Such a
   request was `refused`, `unsigned` before. Never `valid`, and no verdict.
-- `bouncer()` (`@pidgeon-ai/sdk/next`) reports declared agents too, with the visitor's
+- `bouncer()` (`@zurchin/sdk/next`) reports declared agents too, with the visitor's
   address (Netlify's `context.ip`, Vercel's `x-real-ip`, or the new `ip` option).
   `isAgentRequest`, `DECLARED_AGENT_TOKENS` and `declaredAgentToken` are exported.
 - `pidgeon.visits.record(visits)` (`POST /v1/visits`): record declared agents' visits, up
@@ -51,7 +67,7 @@
 - `verify(request, { place })`: `signup`, `checkout`, `api` or `other`. Every answer carries
   `place`, `decision` (`allow`, `limit`, `block` or `watch`), `would` and `rule`, and so
   does the verdict (`VerdictClaims`).
-- `bouncer({ mode: 'enforce', place })` (`@pidgeon-ai/sdk/next`): a place's check is awaited
+- `bouncer({ mode: 'enforce', place })` (`@zurchin/sdk/next`): a place's check is awaited
   and a blocked agent answered with a 403. `verdictFor` sends `place: 'signup'` unless told
   otherwise.
 
@@ -68,9 +84,9 @@
 - Verdicts at sign-up: `verify` answers `verdict` for every result but
   `refused`, a token Pidgeon signs for five minutes, for a sign-up hook that
   cannot see the request. `verify(request, { ip })` writes the agent's
-  address into it. `@pidgeon-ai/sdk/verdict`: `verifyVerdict` checks one
+  address into it. `@zurchin/sdk/verdict`: `verifyVerdict` checks one
   offline against Pidgeon's keys; `pidgeon.checkVerdict` checks and spends
-  one with Pidgeon (`/v1/verify/verdict`). `@pidgeon-ai/sdk/next`:
+  one with Pidgeon (`/v1/verify/verdict`). `@zurchin/sdk/next`:
   `verdictFor` gets one in a proxy, on the sign-up's own request.
 
 ## 2.7.0
@@ -96,7 +112,7 @@
 
 ## 2.5.0
 
-- `@pidgeon-ai/sdk/next`: `bouncer({ apiKey })` for a Next.js proxy (or any
+- `@zurchin/sdk/next`: `bouncer({ apiKey })` for a Next.js proxy (or any
   `Request` with `waitUntil`). Observe mode checks each request carrying an
   agent's signature, or `Signature-Agent` alone, with `POST /v1/verify` after
   the response; it never throws, delays or changes a response, skips other
@@ -188,9 +204,9 @@ you move.
   API key or an OAuth access token (`getToken`, refreshed per request).
 - Signing as an agent (Web Bot Auth, RFC 9421): `signedFetch`, `agentFromEnv`,
   `generateAgentKey`, `signAgentRequest`, `verifyAgentRequest`.
-- `@pidgeon-ai/sdk/auth`: Sign in with Pidgeon. `signInAsAgent`,
+- `@zurchin/sdk/auth`: Sign in with Pidgeon. `signInAsAgent`,
   `verifyIdToken`, `verifyAgentSignIn`, `requestIdJag`.
-- `@pidgeon-ai/sdk/node`: signing in from a terminal through Pidgeon's OAuth
+- `@zurchin/sdk/node`: signing in from a terminal through Pidgeon's OAuth
   server, and agent keys kept on this machine (`setUpAgent`, `addAgentKey`,
   `agentFromKeyFile`). What the CLI and the MCP server share.
 - `verifyWebhook` for webhook signatures.

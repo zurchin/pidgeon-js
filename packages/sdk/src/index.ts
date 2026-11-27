@@ -23,7 +23,26 @@ import {
 export * from './credential.ts';
 export { DECLARED_AGENT_TOKENS, declaredAgentToken } from './declared-agents.ts';
 
-export const DEFAULT_BASE_URL = 'https://pidgeon.ai';
+/**
+ * Where the API is: zurchin.com since the switch from Pidgeon (pidgeon.ai keeps
+ * answering the API for six months, so a client pointed there still works). `auth.ts`, the CLI, the MCP server
+ * and the AI SDK tools read it from here.
+ */
+export const DEFAULT_BASE_URL = 'https://zurchin.com';
+
+type Env = Record<string, string | undefined>;
+
+/**
+ * A setting from the environment, by its name after the prefix: `ZURCHIN_<name>`
+ * first, then `PIDGEON_<name>` (Pidgeon is becoming Zurchin, and both names work).
+ * An empty value counts as unset.
+ */
+export function envSetting(
+  name: string,
+  env: Env = (globalThis as { process?: { env?: Env } }).process?.env ?? {},
+): string | undefined {
+  return env[`ZURCHIN_${name}`] || env[`PIDGEON_${name}`] || undefined;
+}
 
 export type Band = 'unverified' | 'new' | 'good' | 'flagged' | 'suspended';
 
@@ -755,7 +774,7 @@ export class Pidgeon {
    * Check a verdict with Pidgeon, for a sign-up hook: signed by Pidgeon, for
    * this account (and `origin`, and `ip`, when given), not expired, its key
    * and agent not revoked since, and never checked before. Spending it is
-   * what an offline check (`verifyVerdict`, `@pidgeon-ai/sdk/verdict`)
+   * what an offline check (`verifyVerdict`, `@zurchin/sdk/verdict`)
    * cannot do.
    */
   checkVerdict(
@@ -1412,7 +1431,7 @@ export class Pidgeon {
    * Visits of agents that only name themselves (`declared`), recorded in a
    * batch after the responses, not counted as verifications. Up to 100 a
    * call; a User-Agent not on Pidgeon's list is skipped, not stored. Send
-   * signed requests to `verify`. `bouncer()` (`@pidgeon-ai/sdk/next`) does
+   * signed requests to `verify`. `bouncer()` (`@zurchin/sdk/next`) does
    * this for you.
    */
   readonly visits = {
@@ -1522,15 +1541,15 @@ export async function signedFetch(
   return fetch(new Request(request, { headers }));
 }
 
-/** Your agent, from `PIDGEON_AGENT_KEY` and `PIDGEON_DIRECTORY` (the dashboard gives both). */
+/** Your agent, from `ZURCHIN_AGENT_KEY` (else `PIDGEON_AGENT_KEY`) and `ZURCHIN_DIRECTORY` (else `PIDGEON_DIRECTORY`); the dashboard gives both. */
 export function agentFromEnv(env: Record<string, string | undefined> = process.env): {
   fetch: (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 } {
-  const key = env.PIDGEON_AGENT_KEY;
-  const directory = env.PIDGEON_DIRECTORY;
+  const key = envSetting('AGENT_KEY', env);
+  const directory = envSetting('DIRECTORY', env);
   if (!key || !directory) {
     throw new Error(
-      'Set PIDGEON_AGENT_KEY and PIDGEON_DIRECTORY: your agent’s page on pidgeon.ai has both.',
+      'Set ZURCHIN_AGENT_KEY and ZURCHIN_DIRECTORY (or PIDGEON_AGENT_KEY and PIDGEON_DIRECTORY): your agent’s page on pidgeon.ai has both.',
     );
   }
   const privateJwk = JSON.parse(key) as JsonWebKey;
@@ -1595,3 +1614,6 @@ export async function verifyWebhook(
     throw new PidgeonError(400, 'invalid_signature', 'The webhook signature does not match.');
   return JSON.parse(rawBody) as WebhookPayload;
 }
+
+/** The same client and error under the name Pidgeon is becoming. */
+export { Pidgeon as Zurchin, PidgeonError as ZurchinError };

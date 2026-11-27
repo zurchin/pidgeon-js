@@ -3,7 +3,7 @@
  * names, descriptions and input schemas, called in your process with your
  * key.
  *
- * Nothing here describes a tool. `registerApiTools` in `@pidgeon-ai/mcp/tools`
+ * Nothing here describes a tool. `registerApiTools` in `@zurchin/mcp/tools`
  * is the one list, shared by the local MCP server and the hosted one at
  * https://pidgeon.ai/mcp; this file hands it a recorder in place of an MCP
  * server and wraps what it records with `tool()`. A tool added there is here
@@ -12,13 +12,13 @@
 import { tool, type ToolSet } from 'ai';
 import { z } from 'zod';
 
-import { DEFAULT_BASE_URL, Pidgeon } from '@pidgeon-ai/sdk';
-import { registerApiTools } from '@pidgeon-ai/mcp/tools';
+import { DEFAULT_BASE_URL, envSetting, Pidgeon } from '@zurchin/sdk';
+import { registerApiTools } from '@zurchin/mcp/tools';
 
-export const VERSION = '1.0.1';
+export const VERSION = '1.2.0';
 
 export type PidgeonToolsOptions = {
-  /** A Pidgeon API key. `PIDGEON_API_KEY` when left out. */
+  /** A Pidgeon API key. `ZURCHIN_API_KEY`, else `PIDGEON_API_KEY`, when left out. */
   apiKey?: string;
   /** Where the API is: `https://pidgeon.ai` when left out. */
   baseUrl?: string;
@@ -122,8 +122,10 @@ export function pidgeonToolApproval(tools: ToolSet): Record<string, 'user-approv
 }
 
 function clientOf(options: PidgeonToolsOptions): Pidgeon {
-  const apiKey = options.apiKey ?? globalThis.process?.env?.PIDGEON_API_KEY;
+  const apiKey = options.apiKey ?? envSetting('API_KEY');
   if (!apiKey)
-    throw new Error('pidgeonTools needs an API key: pass apiKey, or set PIDGEON_API_KEY.');
+    throw new Error(
+      'pidgeonTools needs an API key: pass apiKey, or set ZURCHIN_API_KEY (or PIDGEON_API_KEY).',
+    );
   return new Pidgeon({ apiKey, baseUrl: options.baseUrl ?? DEFAULT_BASE_URL });
 }

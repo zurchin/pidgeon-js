@@ -1,17 +1,17 @@
-# @pidgeon-ai/mcp
+# @zurchin/mcp
 
 Email for founders, teams and agents, as an MCP server. Give each agent its own
 address beside your team's, on @pidgeon.email or your own domain: it sends, waits for the reply and answers
 in the thread. https://pidgeon.ai
 
 ```sh
-claude mcp add pidgeon -- npx -y @pidgeon-ai/mcp
+claude mcp add pidgeon -- npx -y @zurchin/mcp
 ```
 
-Any other client: run `npx -y @pidgeon-ai/mcp` over stdio, for example
+Any other client: run `npx -y @zurchin/mcp` over stdio, for example
 
 ```json
-{ "mcpServers": { "pidgeon": { "command": "npx", "args": ["-y", "@pidgeon-ai/mcp"] } } }
+{ "mcpServers": { "pidgeon": { "command": "npx", "args": ["-y", "@zurchin/mcp"] } } }
 ```
 
 Then ask: "Give this agent an inbox called bookings, email ops@example.com

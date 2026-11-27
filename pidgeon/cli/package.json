@@ -1,0 +1,35 @@
+{
+  "name": "@pidgeon-ai/cli",
+  "version": "2.7.0",
+  "description": "Now @zurchin/cli: Pidgeon is now Zurchin. This last release re-exports it.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
+    "directory": "pidgeon/cli"
+  },
+  "homepage": "https://zurchin.com",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "pidgeon": "bin/pidgeon.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@zurchin/cli": "workspace:*"
+  }
+}

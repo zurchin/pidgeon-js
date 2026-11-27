@@ -1,11 +1,11 @@
-# @pidgeon-ai/sdk
+# @zurchin/sdk
 
 Email for founders, teams and agents. Give each agent its own address beside
 your team's, on @pidgeon.email or your own domain, or give every user of your
 product inboxes of their own. https://pidgeon.ai
 
 ```sh
-npm install @pidgeon-ai/sdk
+npm install @zurchin/sdk
 ```
 
 Version 2 is for the new Pidgeon. Code written for 1.x (the old email API at
@@ -14,7 +14,7 @@ Version 2 is for the new Pidgeon. Code written for 1.x (the old email API at
 ## Give an agent an inbox
 
 ```ts
-import { Pidgeon } from '@pidgeon-ai/sdk';
+import { Pidgeon } from '@zurchin/sdk';
 
 const pidgeon = new Pidgeon({ apiKey: process.env.PIDGEON_API_KEY! });
 
@@ -87,7 +87,7 @@ const inbox = await pidgeon.inboxes.create({ name: 'support', podId: pod.id, dom
 const { key } = await pidgeon.keys.create({ name: 'Acme', access: 'send', podId: pod.id });
 ```
 
-## Sign in with Pidgeon (`@pidgeon-ai/sdk/auth`)
+## Sign in with Pidgeon (`@zurchin/sdk/auth`)
 
 Agents sign in to websites as themselves, with a key of their own.
 
@@ -102,14 +102,14 @@ const { agent, key } = await pidgeon.agents.setUp({
 });
 ```
 
-From a terminal or a coding agent, `@pidgeon-ai/cli` and `@pidgeon-ai/mcp`
+From a terminal or a coding agent, `@zurchin/cli` and `@zurchin/mcp`
 do the same, and keep the key in a file on your machine
-(`@pidgeon-ai/sdk/node`: `setUpAgent`, `agentFromKeyFile`).
+(`@zurchin/sdk/node`: `setUpAgent`, `agentFromKeyFile`).
 
 ### Sign its requests
 
 ```ts
-import { agentFromEnv } from '@pidgeon-ai/sdk';
+import { agentFromEnv } from '@zurchin/sdk';
 
 // PIDGEON_AGENT_KEY is the private JWK, PIDGEON_DIRECTORY the agent's directory.
 const agent = agentFromEnv();
@@ -137,8 +137,8 @@ An agent signs in with no person present, and sends its ID token with every
 request it signs:
 
 ```ts
-import { signedFetch } from '@pidgeon-ai/sdk';
-import { signInAsAgent } from '@pidgeon-ai/sdk/auth';
+import { signedFetch } from '@zurchin/sdk';
+import { signInAsAgent } from '@zurchin/sdk/auth';
 
 const { idToken } = await signInAsAgent({ site: 'site_…', key, directory });
 await signedFetch(
@@ -156,7 +156,7 @@ names and its `Signature-Agent` is the agent's own directory, so a copied
 token is useless on its own:
 
 ```ts
-import { verifyAgentSignIn } from '@pidgeon-ai/sdk/auth';
+import { verifyAgentSignIn } from '@zurchin/sdk/auth';
 
 const claims = await verifyAgentSignIn(request, { clientId: 'site_…' });
 claims.sub;
@@ -174,7 +174,7 @@ any other: refuse it in production.
 ### For an MCP server that trusts Pidgeon (ID-JAG)
 
 ```ts
-import { requestIdJag } from '@pidgeon-ai/sdk/auth';
+import { requestIdJag } from '@zurchin/sdk/auth';
 
 const { idJag } = await requestIdJag({
   audience: 'https://auth.example.com', // the MCP server's authorization server

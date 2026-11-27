@@ -27,7 +27,7 @@ The Pidgeon node works as a tool for n8n's AI Agent node too.
 - **n8n Cloud:** search for Pidgeon in the nodes panel. An owner or admin may
   need to allow verified community nodes first.
 - **Self-hosted:** as an owner or admin, **Settings → Community Nodes →
-  Install**, then enter `@pidgeon-ai/n8n-nodes-pidgeon`.
+  Install**, then enter `@zurchin/n8n-nodes-zurchin`.
 
 ## The credential
 

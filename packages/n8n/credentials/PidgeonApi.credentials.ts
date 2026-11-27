@@ -37,7 +37,7 @@ export class PidgeonApi implements ICredentialType {
       displayName: 'Base URL',
       name: 'baseUrl',
       type: 'hidden',
-      default: 'https://pidgeon.ai',
+      default: 'https://zurchin.com',
     },
   ];
 

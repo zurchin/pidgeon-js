@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.19.0
+
+- Pidgeon is now Zurchin: this version is published as `@zurchin/mcp`, and the last `@zurchin/mcp` (1.19.0) only re-exports it and says so once.
+  The Zurchin package's command is `zurchin-mcp`, and the MCP Registry lists it as `com.zurchin/mcp`.
+- The default host is `https://zurchin.com`. pidgeon.ai keeps answering the API for six months.
+- The source repository is `zurchin/pidgeon-js`.
+
+## 1.18.0
+
+- `ZURCHIN_API_KEY` works beside `PIDGEON_API_KEY`, and wins when both are set;
+  `sign_in` and `status` say which one is in use. `ZURCHIN_BASE_URL` and
+  `ZURCHIN_CONFIG_DIR` likewise.
+
 ## 1.17.0
 
 - `deliver_api_key_to_vercel {name, vercel_project_id, env_name, targets?, access?, pod_id?,

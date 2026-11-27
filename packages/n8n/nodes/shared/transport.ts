@@ -15,7 +15,7 @@ export type PidgeonContext =
 
 export const CREDENTIAL = 'pidgeonApi';
 
-const DEFAULT_BASE_URL = 'https://pidgeon.ai';
+const DEFAULT_BASE_URL = 'https://zurchin.com';
 
 export interface RequestOptions {
   body?: IDataObject;

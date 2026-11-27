@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Pidgeon is now Zurchin: this version is published as `@zurchin/n8n-nodes-zurchin`. `@zurchin/n8n-nodes-zurchin` is deprecated.
+- The default host is `https://zurchin.com`. pidgeon.ai keeps answering the API for six months.
+- The source repository is `zurchin/pidgeon-js`.
+
 ## 1.0.1
 
 - The node's description, the package's and the README lead with email inboxes

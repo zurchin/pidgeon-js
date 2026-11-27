@@ -1,11 +1,11 @@
-# @pidgeon-ai/cli
+# @zurchin/cli
 
 `pidgeon`: email for founders, teams and agents, from a terminal. Give an agent its own
 address on @pidgeon.email or your domain, send from it and wait for the reply.
 https://pidgeon.ai
 
 ```sh
-npm install -g @pidgeon-ai/cli
+npm install -g @zurchin/cli
 pidgeon login
 pidgeon inboxes create bookings        # bookings@pidgeon.email
 pidgeon send <inbox-id> --to ana@example.com --subject "Table for two" --text "Friday at 8?"
@@ -48,7 +48,7 @@ pidgeon sites create Shop --redirect https://shop.example/callback
 `agents create` registers the agent, makes its Ed25519 key on this machine,
 publishes the public half in a request signed with the key, and keeps the
 private half in `~/.config/pidgeon/agents/<id>.json`, readable by you only.
-Your agent signs with it: `agentFromKeyFile(path)` from `@pidgeon-ai/sdk/node`,
+Your agent signs with it: `agentFromKeyFile(path)` from `@zurchin/sdk/node`,
 or `PIDGEON_AGENT_KEY` (the file's `private_jwk`) and `PIDGEON_DIRECTORY`.
 `pidgeon inboxes create bookings --agent <agent-id>` makes an inbox that
 agent's.

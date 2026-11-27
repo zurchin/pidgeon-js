@@ -1,16 +1,16 @@
 {
-  "name": "@pidgeon-ai/mcp",
-  "version": "1.17.0",
+  "name": "@zurchin/mcp",
+  "version": "1.19.0",
   "description": "Pidgeon's MCP server. Email for founders, teams and agents: give your AI agents inboxes beside your team's, on @pidgeon.email or your own domains.",
   "license": "Apache-2.0",
   "type": "module",
-  "mcpName": "ai.pidgeon/mcp",
+  "mcpName": "com.zurchin/mcp",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pidgeon-ai/pidgeon-js.git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
     "directory": "packages/mcp"
   },
-  "homepage": "https://pidgeon.ai",
+  "homepage": "https://zurchin.com",
   "keywords": [
     "email",
     "inbox",
@@ -20,13 +20,13 @@
     "team-inbox",
     "unified-inbox",
     "model-context-protocol",
-    "pidgeon"
+    "zurchin"
   ],
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "pidgeon-mcp": "dist/bin.js"
+    "zurchin-mcp": "dist/bin.js"
   },
   "exports": {
     ".": {
@@ -36,7 +36,8 @@
     "./tools": {
       "types": "./dist/tools.d.ts",
       "default": "./dist/tools.js"
-    }
+    },
+    "./bin": "./dist/bin.js"
   },
   "files": [
     "dist",
@@ -51,7 +52,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@pidgeon-ai/sdk": "workspace:^",
+    "@zurchin/sdk": "workspace:^",
     "zod": "^4.6.7"
   },
   "devDependencies": {

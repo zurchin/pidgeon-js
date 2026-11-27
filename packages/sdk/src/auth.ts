@@ -14,6 +14,7 @@
  */
 import { createLocalJWKSet, createRemoteJWKSet, jwtVerify, type JSONWebKeySet } from 'jose';
 
+import { DEFAULT_BASE_URL } from './index.ts';
 import {
   directoryUrl,
   keyIdOf,
@@ -23,7 +24,8 @@ import {
   type PublicJwk,
 } from './credential.ts';
 
-export const DEFAULT_ISSUER = 'https://pidgeon.ai';
+/** The issuer is the API's host: it moves with `DEFAULT_BASE_URL`. */
+export const DEFAULT_ISSUER = DEFAULT_BASE_URL;
 export const TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 export const AGENT_KEY_TOKEN = 'urn:pidgeon:params:oauth:token-type:agent-key';
 export const ID_TOKEN = 'urn:ietf:params:oauth:token-type:id_token';

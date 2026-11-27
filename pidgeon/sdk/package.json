@@ -1,0 +1,52 @@
+{
+  "name": "@pidgeon-ai/sdk",
+  "version": "2.16.0",
+  "description": "Now @zurchin/sdk: Pidgeon is now Zurchin. This last release re-exports it.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
+    "directory": "pidgeon/sdk"
+  },
+  "homepage": "https://zurchin.com",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./credential": {
+      "types": "./credential.d.ts",
+      "default": "./credential.js"
+    },
+    "./auth": {
+      "types": "./auth.d.ts",
+      "default": "./auth.js"
+    },
+    "./node": {
+      "types": "./node.d.ts",
+      "default": "./node.js"
+    },
+    "./next": {
+      "types": "./next.d.ts",
+      "default": "./next.js"
+    },
+    "./verdict": {
+      "types": "./verdict.d.ts",
+      "default": "./verdict.js"
+    }
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@zurchin/sdk": "workspace:*"
+  }
+}

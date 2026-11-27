@@ -3,7 +3,7 @@
  * (Supabase's Before User Created, an Auth0 Action, WorkOS Actions).
  *
  * 1. The website's proxy verifies the agent (`/v1/verify`, or `verdictFor`
- *    in `@pidgeon-ai/sdk/next`) and gets `verdict`: what Pidgeon found,
+ *    in `@zurchin/sdk/next`) and gets `verdict`: what Pidgeon found,
  *    signed, for five minutes.
  * 2. The app passes it to the sign-up (Supabase `options.data`, a hidden
  *    field, a header).
@@ -12,7 +12,7 @@
  *    holds it to your account, spends it once and sees a revocation since.
  *
  * ```ts
- * import { verifyVerdict } from '@pidgeon-ai/sdk/verdict';
+ * import { verifyVerdict } from '@zurchin/sdk/verdict';
  *
  * const verdict = await verifyVerdict(token, { origin: 'https://shop.example', ip });
  * if (verdict.result === 'verified') // verdict.operator.name stands behind it

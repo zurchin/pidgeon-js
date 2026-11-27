@@ -1,27 +1,27 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "ai.pidgeon/mcp",
+  "name": "com.zurchin/mcp",
   "title": "Pidgeon",
   "description": "Email for founders, teams and agents. Inboxes for your AI agents beside your team's, on any domain.",
-  "websiteUrl": "https://pidgeon.ai",
+  "websiteUrl": "https://zurchin.com",
   "repository": {
-    "url": "https://github.com/pidgeon-ai/pidgeon-js",
+    "url": "https://github.com/zurchin/pidgeon-js",
     "source": "github",
     "subfolder": "packages/mcp"
   },
-  "version": "1.17.0",
+  "version": "1.19.0",
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@pidgeon-ai/mcp",
-      "version": "1.17.0",
+      "identifier": "@zurchin/mcp",
+      "version": "1.19.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "name": "PIDGEON_API_KEY",
-          "description": "An API key, instead of signing in with the browser.",
+          "name": "ZURCHIN_API_KEY",
+          "description": "An API key, instead of signing in with the browser. PIDGEON_API_KEY works too.",
           "isRequired": false,
           "isSecret": true
         }
@@ -31,7 +31,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://pidgeon.ai/mcp"
+      "url": "https://zurchin.com/mcp"
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "name": "@pidgeon-ai/ai-sdk",
+  "version": "1.2.0",
+  "description": "Now @zurchin/ai-sdk: Pidgeon is now Zurchin. This last release re-exports it.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
+    "directory": "pidgeon/ai-sdk"
+  },
+  "homepage": "https://zurchin.com",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "ai": "^7"
+  },
+  "dependencies": {
+    "@zurchin/ai-sdk": "workspace:*"
+  }
+}

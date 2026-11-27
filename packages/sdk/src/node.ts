@@ -1,16 +1,16 @@
 /**
- * `@pidgeon-ai/sdk/node`: what the CLI and the MCP server share, for Node only.
+ * `@zurchin/sdk/node`: what the CLI and the MCP server share, for Node only.
  *
  * - **Signing in** with a browser, through Pidgeon's OAuth server (MCP
  *   authorization: RFC 9728 discovery from the resource `<issuer>/mcp`, a
  *   client registered with RFC 7591, the code flow with PKCE on a loopback
  *   redirect, RFC 8252). The tokens are kept in `credentials.json` and
- *   refreshed when they run out; `PIDGEON_API_KEY` wins over them.
+ *   refreshed when they run out; `ZURCHIN_API_KEY` (else `PIDGEON_API_KEY`) wins.
  * - **Agent keys**, made on this machine and kept in `agents/<id>.json`, so
  *   the private half never leaves it: not to Pidgeon, and not to the model a
  *   coding agent talks to.
  *
- * Both live in `PIDGEON_CONFIG_DIR`, else `$XDG_CONFIG_HOME/pidgeon`, else
+ * Both live in `ZURCHIN_CONFIG_DIR` (else `PIDGEON_CONFIG_DIR`), else `$XDG_CONFIG_HOME/pidgeon`, else
  * `~/.config/pidgeon`, readable by this user only.
  */
 import { spawn } from 'node:child_process';
@@ -21,17 +21,34 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { generateAgentKey, signAgentRequest } from './credential.ts';
-import { DEFAULT_BASE_URL, Pidgeon, PidgeonError, signedFetch, type Agent } from './index.ts';
+import {
+  DEFAULT_BASE_URL,
+  envSetting,
+  Pidgeon,
+  PidgeonError,
+  signedFetch,
+  type Agent,
+} from './index.ts';
 
 type Env = Record<string, string | undefined>;
 
+/** Which variable holds the API key, if one does: `ZURCHIN_API_KEY` wins over `PIDGEON_API_KEY`. */
+export function apiKeyVariable(
+  env: Env = process.env,
+): 'ZURCHIN_API_KEY' | 'PIDGEON_API_KEY' | undefined {
+  if (env.ZURCHIN_API_KEY) return 'ZURCHIN_API_KEY';
+  if (env.PIDGEON_API_KEY) return 'PIDGEON_API_KEY';
+  return undefined;
+}
+
 export function configDir(env: Env = process.env): string {
-  if (env.PIDGEON_CONFIG_DIR) return env.PIDGEON_CONFIG_DIR;
+  const dir = envSetting('CONFIG_DIR', env);
+  if (dir) return dir;
   return join(env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'pidgeon');
 }
 
 export function baseUrlOf(env: Env = process.env): string {
-  return (env.PIDGEON_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
+  return (envSetting('BASE_URL', env) || DEFAULT_BASE_URL).replace(/\/+$/, '');
 }
 
 async function readJson<T>(path: string): Promise<T | null> {
@@ -350,11 +367,11 @@ const notSignedIn = () =>
   new PidgeonError(
     401,
     'not_signed_in',
-    'Not signed in to Pidgeon: run `pidgeon login`, or set PIDGEON_API_KEY.',
+    'Not signed in to Pidgeon: run `zurchin login`, or set ZURCHIN_API_KEY (or PIDGEON_API_KEY).',
   );
 
 /**
- * The API client for this machine: `PIDGEON_API_KEY` if it is set, else the
+ * The API client for this machine: `ZURCHIN_API_KEY` or `PIDGEON_API_KEY` if set, else the
  * signed-in session (refreshed as needed). Nothing is checked until the first call.
  */
 export function clientFromEnvironment(
@@ -362,8 +379,8 @@ export function clientFromEnvironment(
 ): Pidgeon {
   const env = options.env ?? process.env;
   const baseUrl = options.baseUrl ?? baseUrlOf(env);
-  if (env.PIDGEON_API_KEY)
-    return new Pidgeon({ apiKey: env.PIDGEON_API_KEY, baseUrl, fetch: options.fetch });
+  const apiKey = envSetting('API_KEY', env);
+  if (apiKey) return new Pidgeon({ apiKey, baseUrl, fetch: options.fetch });
   return new Pidgeon({
     baseUrl,
     fetch: options.fetch,

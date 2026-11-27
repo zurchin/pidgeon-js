@@ -6,7 +6,7 @@
  * ```ts
  * // proxy.ts
  * import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
- * import { bouncer } from '@pidgeon-ai/sdk/next';
+ * import { bouncer } from '@zurchin/sdk/next';
  *
  * const observe = bouncer({ apiKey: process.env.PIDGEON_API_KEY });
  *

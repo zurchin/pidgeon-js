@@ -1,5 +1,7 @@
-# The published packages, so `@pidgeon-ai/cli` and `@pidgeon-ai/mcp` resolve
-# the `workspace:^` SDK they depend on, and `pnpm pack` rewrites that to a
-# real version on the way out.
+# The published packages, so the CLI and the MCP server resolve the
+# `workspace:^` SDK they depend on, and `pnpm pack` rewrites that to a real
+# version on the way out. `pidgeon/` holds the last releases of the Pidgeon
+# names once the packages are published under Zurchin's (scripts/zurchin.ts).
 packages:
   - packages/*
+  - pidgeon/*

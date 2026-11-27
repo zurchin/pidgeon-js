@@ -1,0 +1,39 @@
+{
+  "name": "@pidgeon-ai/mcp",
+  "version": "1.19.0",
+  "description": "Now @zurchin/mcp: Pidgeon is now Zurchin. This last release re-exports it.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
+    "directory": "pidgeon/mcp"
+  },
+  "homepage": "https://zurchin.com",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "pidgeon-mcp": "bin/pidgeon-mcp.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./tools": {
+      "types": "./tools.d.ts",
+      "default": "./tools.js"
+    }
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@zurchin/mcp": "workspace:*"
+  }
+}

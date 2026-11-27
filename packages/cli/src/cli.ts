@@ -1,17 +1,18 @@
 /**
  * `pidgeon`, the command line (CLI 2.0): Email, pods and the account, agents
  * and Sign in with Pidgeon from a terminal. `verify` and `reports` stay for
- * the scripts that use them, out of the help (Patrick, 20 November). Every command is a call through `@pidgeon-ai/sdk`; signing in
- * and agent keys are `@pidgeon-ai/sdk/node`'s, shared with the MCP server.
+ * the scripts that use them, out of the help (Patrick, 20 November). Every command is a call through `@zurchin/sdk`; signing in
+ * and agent keys are `@zurchin/sdk/node`'s, shared with the MCP server.
  *
  * `run` is the whole program, with its input and output passed in, so it is
  * tested without a terminal.
  */
 import { parseArgs } from 'node:util';
 
-import { Pidgeon, PidgeonError, type WebhookEventType } from '@pidgeon-ai/sdk';
+import { Pidgeon, PidgeonError, type WebhookEventType } from '@zurchin/sdk';
 import {
   addAgentKey,
+  apiKeyVariable,
   baseUrlOf,
   clientFromEnvironment,
   listAgentKeys,
@@ -20,9 +21,9 @@ import {
   setUpAgent,
   signIn,
   signOut,
-} from '@pidgeon-ai/sdk/node';
+} from '@zurchin/sdk/node';
 
-export const VERSION = '2.5.2';
+export const VERSION = '2.7.0';
 
 export type Io = {
   out: (line: string) => void;
@@ -34,62 +35,66 @@ export type Io = {
   openBrowser?: boolean;
 };
 
-const HELP = `pidgeon ${VERSION}: email for founders, teams and agents, from a terminal.
+/** The command people type: the Zurchin package (scripts/zurchin.ts) names it `zurchin`. */
+export const COMMAND = 'zurchin';
+
+const HELP = `${COMMAND} ${VERSION}: email for founders, teams and agents, from a terminal.
 
 Signing in
-  pidgeon login [--scope admin|send|draft|read] [--no-browser]
-  pidgeon logout
-  pidgeon status
-  Or set PIDGEON_API_KEY; it wins over a session. PIDGEON_BASE_URL points elsewhere.
+  ${COMMAND} login [--scope admin|send|draft|read] [--no-browser]
+  ${COMMAND} logout
+  ${COMMAND} status
+  Or set ZURCHIN_API_KEY (or PIDGEON_API_KEY); it wins over a session. ZURCHIN_BASE_URL
+  (or PIDGEON_BASE_URL) points elsewhere.
 
 Email
-  pidgeon inboxes list [--limit <n>] [--cursor <cursor>]
-  pidgeon inboxes create <name> [--kind agent|events] [--agent <agent-identity-id>] [--domain <your domain>] [--pod <pod-id>]
-  pidgeon inboxes remove <inbox-id>
-  pidgeon send <inbox-id> --to <address>... [--cc <address>...] [--bcc <address>...] --subject <text>
+  ${COMMAND} inboxes list [--limit <n>] [--cursor <cursor>]
+  ${COMMAND} inboxes create <name> [--kind agent|events] [--agent <agent-identity-id>] [--domain <your domain>] [--pod <pod-id>]
+  ${COMMAND} inboxes remove <inbox-id>
+  ${COMMAND} send <inbox-id> --to <address>... [--cc <address>...] [--bcc <address>...] --subject <text>
       (--text <body> | --html <body>) [--reply-to <message-id>]
-  pidgeon drafts create <inbox-id>       the same options as send
-  pidgeon drafts show|remove <draft-id>
-  pidgeon drafts send <draft-id> [--at <ISO time>]
-  pidgeon drafts approval <draft-id>      hold it for a person to send or reject
-  pidgeon mail list <inbox-id> [--limit <n>] [--cursor <cursor>]   the inbox's mail, newest first
-  pidgeon mail read <message-id> [--original]   cleaned by the Firewall unless --original
-  pidgeon mail wait <inbox-id> [--since <time|message-id>] [--timeout <seconds>]
-  pidgeon search <words> [--inbox <inbox-id>] [--limit <n>] [--cursor <cursor>]
-  pidgeon threads list [--inbox <inbox-id>] [--folder inbox|archive|spam|trash]
+  ${COMMAND} drafts create <inbox-id>       the same options as send
+  ${COMMAND} drafts show|remove <draft-id>
+  ${COMMAND} drafts send <draft-id> [--at <ISO time>]
+  ${COMMAND} drafts approval <draft-id>      hold it for a person to send or reject
+  ${COMMAND} mail list <inbox-id> [--limit <n>] [--cursor <cursor>]   the inbox's mail, newest first
+  ${COMMAND} mail read <message-id> [--original]   cleaned by the Firewall unless --original
+  ${COMMAND} mail wait <inbox-id> [--since <time|message-id>] [--timeout <seconds>]
+  ${COMMAND} search <words> [--inbox <inbox-id>] [--limit <n>] [--cursor <cursor>]
+  ${COMMAND} threads list [--inbox <inbox-id>] [--folder inbox|archive|spam|trash]
       [--limit <n>] [--cursor <cursor>]
-  pidgeon threads show <thread-id>
-  pidgeon threads file <thread-id> --folder inbox|archive|spam|trash
-  pidgeon threads hand-over <thread-id>   to a person: owner human, status human_review
-  pidgeon app-passwords create <inbox-id> <name>   for a mail app (IMAP, SMTP, CalDAV)
-  pidgeon app-passwords list <inbox-id> | revoke <app-password-id>
+  ${COMMAND} threads show <thread-id>
+  ${COMMAND} threads file <thread-id> --folder inbox|archive|spam|trash
+  ${COMMAND} threads hand-over <thread-id>   to a person: owner human, status human_review
+  ${COMMAND} app-passwords create <inbox-id> <name>   for a mail app (IMAP, SMTP, CalDAV)
+  ${COMMAND} app-passwords list <inbox-id> | revoke <app-password-id>
 
 Pods and the account
-  pidgeon pods list | create <name> | remove <pod-id>   a pod for each user of your platform
-  pidgeon events [--type <type>] [--limit <n>] [--cursor <cursor>]
-  pidgeon webhooks list | create <url> --event <type>... [--inbox <id>...] | remove <webhook-id>
-  pidgeon api <GET|POST|PATCH|DELETE> <path> [--data <json>]    any /v1 call
+  ${COMMAND} pods list | create <name> | remove <pod-id>   a pod for each user of your platform
+  ${COMMAND} events [--type <type>] [--limit <n>] [--cursor <cursor>]
+  ${COMMAND} webhooks list | create <url> --event <type>... [--inbox <id>...] | remove <webhook-id>
+  ${COMMAND} api <GET|POST|PATCH|DELETE> <path> [--data <json>]    any /v1 call
 
 Agent identities (optional: who an agent is when it signs mail and signs in)
-  pidgeon agents list [--limit <n>] [--cursor <cursor>]
-  pidgeon agents create <name> [--purpose <text>] [--pod <pod-id>]
+  ${COMMAND} agents list [--limit <n>] [--cursor <cursor>]
+  ${COMMAND} agents create <name> [--purpose <text>] [--pod <pod-id>]
       Registers the agent identity, makes its key on this machine, publishes
-      the public half signed with it, and keeps the key here (pidgeon keys list).
-  pidgeon agents show <agent-id>          its keys and its reputation
-  pidgeon agents rename <agent-id> <name> [--purpose <text>]
-  pidgeon agents revoke <agent-id>        it and every key it has; cannot be undone
-  pidgeon keys create <agent-id>          a new key for it, made here
-  pidgeon keys list                       the keys this machine keeps
-  pidgeon keys revoke <agent-id> <kid>    requests signed with it stop verifying
-  pidgeon keys proof <agent-id> --directory <url> --url <publish-url> [--name <agent name>]
+      the public half signed with it, and keeps the key here (${COMMAND} keys list).
+  ${COMMAND} agents show <agent-id>          its keys and its reputation
+  ${COMMAND} agents rename <agent-id> <name> [--purpose <text>]
+  ${COMMAND} agents revoke <agent-id>        it and every key it has; cannot be undone
+  ${COMMAND} keys create <agent-id>          a new key for it, made here
+  ${COMMAND} keys list                       the keys this machine keeps
+  ${COMMAND} keys revoke <agent-id> <kid>    requests signed with it stop verifying
+  ${COMMAND} keys proof <agent-id> --directory <url> --url <publish-url> [--name <agent name>]
       For the hosted MCP server: makes the key here, keeps it, and prints the
       public half and the signed proof that publishing needs. No sign-in.
 
 Sign in with Pidgeon
-  pidgeon sites list | create <name> --redirect <uri>... [--pod <pod-id>] | remove <client-id>
-  pidgeon sites update <client-id> [--name <name>] [--redirect <uri>...] | rotate-secret <client-id>
-  pidgeon mandates list | revoke <mandate-id>
-  pidgeon mandates request --agent <id> --client <client-id> --scope <scope> --description <text> [--days <n>]
+  ${COMMAND} sites list | create <name> --redirect <uri>... [--pod <pod-id>] | remove <client-id>
+  ${COMMAND} sites update <client-id> [--name <name>] [--redirect <uri>...] | rotate-secret <client-id>
+  ${COMMAND} mandates list | revoke <mandate-id>
+  ${COMMAND} mandates request --agent <id> --client <client-id> --scope <scope> --description <text> [--days <n>]
 
 A list prints a page at a time; when there is more, its last line is the
 --cursor that reads the next page.
@@ -163,7 +168,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
   } catch (error) {
     if (error instanceof Usage) {
       io.err(error.message);
-      io.err('Run `pidgeon --help` for every command.');
+      io.err(`Run \`${COMMAND} --help\` for every command.`);
       return 2;
     }
     if (error instanceof PidgeonError) {
@@ -255,19 +260,22 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
     }
     case 'status': {
       const session = await readSession(baseUrl, io.env);
-      const how = io.env.PIDGEON_API_KEY
-        ? 'an API key (PIDGEON_API_KEY)'
+      const variable = apiKeyVariable(io.env);
+      const how = variable
+        ? `an API key (${variable})`
         : session
           ? `a session with ${session.scope} access`
           : null;
       show(
         {
           base_url: baseUrl,
-          api_key: Boolean(io.env.PIDGEON_API_KEY),
+          api_key: Boolean(variable),
           session: session ? { scope: session.scope } : null,
         },
         () => [
-          how ? `${baseUrl}, with ${how}.` : `Not signed in to ${baseUrl}: run \`pidgeon login\`.`,
+          how
+            ? `${baseUrl}, with ${how}.`
+            : `Not signed in to ${baseUrl}: run \`${COMMAND} login\`.`,
         ],
       );
       return;
@@ -283,7 +291,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
                 page,
                 page.data.map((a) => `${a.id}  ${a.status.padEnd(7)}  ${a.name}`),
               )
-            : ['No agents yet: pidgeon agents create <name>.'],
+            : [`No agents yet: ${COMMAND} agents create <name>.`],
         );
       } else if (sub === 'create') {
         const name = need(arg, 'name to give the agent');
@@ -316,7 +324,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         const id = need(arg, 'agent (its id)');
         const name = positionals.slice(3).join(' ') || undefined;
         if (!name && values.purpose === undefined)
-          throw new Usage('pidgeon agents rename <agent-id> <name> [--purpose <text>]');
+          throw new Usage(`${COMMAND} agents rename <agent-id> <name> [--purpose <text>]`);
         const agent = await pidgeon.agents.update(id, { name, purpose: values.purpose });
         show(agent, () => [
           `${agent.name} (${agent.id})${agent.purpose ? `: ${agent.purpose}` : ''}`,
@@ -329,7 +337,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         ]);
       } else
         throw new Usage(
-          'pidgeon agents list | create <name> | show <id> | rename <id> <name> | revoke <id>',
+          `${COMMAND} agents list | create <name> | show <id> | rename <id> <name> | revoke <id>`,
         );
       return;
     }
@@ -358,12 +366,12 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         io.out(JSON.stringify(proof, null, 2));
       } else if (sub === 'revoke') {
         const agentId = need(arg, 'agent (its id)');
-        const kid = need(positionals[3], 'key (its kid: pidgeon agents show <agent-id>)');
+        const kid = need(positionals[3], `key (its kid: ${COMMAND} agents show <agent-id>)`);
         await client().agents.revokeKey(agentId, kid);
         show({ revoked: kid }, () => [`Revoked ${kid}. Requests signed with it stop verifying.`]);
       } else
         throw new Usage(
-          'pidgeon keys create <agent-id> | list | proof <agent-id> | revoke <agent-id> <kid>',
+          `${COMMAND} keys create <agent-id> | list | proof <agent-id> | revoke <agent-id> <kid>`,
         );
       return;
     }
@@ -393,7 +401,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
       } else if (sub === 'remove') {
         await pidgeon.inboxes.remove(need(arg, 'inbox (its id)'));
         show({ removed: arg }, () => ['Removed. Its address is retired and never reissued.']);
-      } else throw new Usage('pidgeon inboxes list | create <name> | remove <id>');
+      } else throw new Usage(`${COMMAND} inboxes list | create <name> | remove <id>`);
       return;
     }
     case 'send': {
@@ -439,7 +447,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
       } else if (sub === 'remove') {
         await pidgeon.drafts.remove(need(arg, 'draft (its id)'));
         show({ removed: arg }, () => ['Thrown away.']);
-      } else throw new Usage('pidgeon drafts create | show | send | approval | remove');
+      } else throw new Usage(`${COMMAND} drafts create | show | send | approval | remove`);
       return;
     }
 
@@ -461,7 +469,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
     case 'reports': {
       if (sub !== 'create')
         throw new Usage(
-          'pidgeon reports create <verification-id> --category <c> --evidence <text>',
+          `${COMMAND} reports create <verification-id> --category <c> --evidence <text>`,
         );
       const categories = ['fraud', 'abuse', 'scraping', 'spam', 'fake_signups', 'other'];
       if (!values.category || !categories.includes(values.category)) {
@@ -518,7 +526,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         show({ removed: arg }, () => ['Removed.']);
       } else
         throw new Usage(
-          'pidgeon sites list | create <name> --redirect <uri>... | update <client-id> [--name <name>] [--redirect <uri>...] | rotate-secret <client-id> | remove <client-id>',
+          `${COMMAND} sites list | create <name> --redirect <uri>... | update <client-id> [--name <name>] [--redirect <uri>...] | rotate-secret <client-id> | remove <client-id>`,
         );
       return;
     }
@@ -543,7 +551,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
       } else if (sub === 'revoke') {
         await pidgeon.mandates.revoke(need(arg, 'mandate (its id)'));
         show({ revoked: arg }, () => ['Revoked.']);
-      } else throw new Usage('pidgeon mandates list | request --agent … | revoke <id>');
+      } else throw new Usage(`${COMMAND} mandates list | request --agent … | revoke <id>`);
       return;
     }
     case 'mail': {
@@ -592,7 +600,8 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
           ...(got.held ? [`${got.held} held for a person.`] : []),
           `Next: --since ${got.next_since}`,
         ]);
-      } else throw new Usage('pidgeon mail list <inbox-id> | read <message-id> | wait <inbox-id>');
+      } else
+        throw new Usage(`${COMMAND} mail list <inbox-id> | read <message-id> | wait <inbox-id>`);
       return;
     }
     case 'search': {
@@ -662,7 +671,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         show(t, () => ['Handed to a person: it waits in human review.']);
       } else
         throw new Usage(
-          'pidgeon threads list | show <id> | file <id> --folder <f> | hand-over <id>',
+          `${COMMAND} threads list | show <id> | file <id> --folder <f> | hand-over <id>`,
         );
       return;
     }
@@ -691,7 +700,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         show({ revoked: arg }, () => ['Revoked. Every app using it is refused from now on.']);
       } else
         throw new Usage(
-          'pidgeon app-passwords create <inbox-id> <name> | list <inbox-id> | revoke <id>',
+          `${COMMAND} app-passwords create <inbox-id> <name> | list <inbox-id> | revoke <id>`,
         );
       return;
     }
@@ -720,7 +729,7 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
         show({ removed: arg }, () => ['Removed.']);
       } else
         throw new Usage(
-          'pidgeon webhooks list | create <url> --event <type>... [--inbox <id>...] | remove <id>',
+          `${COMMAND} webhooks list | create <url> --event <type>... [--inbox <id>...] | remove <id>`,
         );
       return;
     }
@@ -755,13 +764,13 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
       } else if (sub === 'remove') {
         await pidgeon.pods.remove(need(arg, 'pod (its id)'));
         show({ removed: arg }, () => ['Removed.']);
-      } else throw new Usage('pidgeon pods list | create <name> | remove <pod-id>');
+      } else throw new Usage(`${COMMAND} pods list | create <name> | remove <pod-id>`);
       return;
     }
     case 'api': {
       const method = (sub ?? '').toUpperCase();
       if (!['GET', 'POST', 'PATCH', 'DELETE'].includes(method) || !arg?.startsWith('/v1/'))
-        throw new Usage('pidgeon api <GET|POST|PATCH|DELETE> </v1/...> [--data <json>]');
+        throw new Usage(`${COMMAND} api <GET|POST|PATCH|DELETE> </v1/...> [--data <json>]`);
       let body: unknown;
       if (values.data !== undefined) {
         try {
@@ -779,6 +788,6 @@ async function dispatch(positionals: string[], values: Values, io: Io): Promise<
       return;
     }
     default:
-      throw new Usage(`There is no \`pidgeon ${command}\`.`);
+      throw new Usage(`There is no \`${COMMAND} ${command}\`.`);
   }
 }

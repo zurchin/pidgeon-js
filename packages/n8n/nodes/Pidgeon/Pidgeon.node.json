@@ -1,5 +1,5 @@
 {
-  "node": "@pidgeon-ai/n8n-nodes-pidgeon.pidgeon",
+  "node": "@zurchin/n8n-nodes-zurchin.pidgeon",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Communication"],

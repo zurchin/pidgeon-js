@@ -1,6 +1,6 @@
 {
-  "name": "@pidgeon-ai/n8n-nodes-pidgeon",
-  "version": "1.0.1",
+  "name": "@zurchin/n8n-nodes-zurchin",
+  "version": "1.1.0",
   "description": "Pidgeon in n8n. Email for founders, teams and agents: send, reply, read and wait for mail, and a trigger for the mail that arrives.",
   "keywords": [
     "n8n-community-node-package",
@@ -11,7 +11,7 @@
     "team-inbox",
     "unified-inbox",
     "n8n",
-    "pidgeon",
+    "zurchin",
     "webhook"
   ],
   "license": "MIT",
@@ -19,14 +19,14 @@
     "name": "Pidgeon",
     "email": "support@pidgeon.ai"
   },
-  "homepage": "https://pidgeon.ai",
+  "homepage": "https://zurchin.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pidgeon-ai/pidgeon-js.git",
+    "url": "git+https://github.com/zurchin/pidgeon-js.git",
     "directory": "packages/n8n"
   },
   "bugs": {
-    "url": "https://github.com/pidgeon-ai/pidgeon-js/issues"
+    "url": "https://github.com/zurchin/pidgeon-js/issues"
   },
   "files": [
     "dist",

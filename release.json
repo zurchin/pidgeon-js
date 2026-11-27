@@ -1,0 +1,47 @@
+{
+  "zurchin-sdk": {
+    "dir": "packages/sdk",
+    "name": "@zurchin/sdk",
+    "version": "2.16.0"
+  },
+  "sdk": {
+    "dir": "pidgeon/sdk",
+    "name": "@pidgeon-ai/sdk",
+    "version": "2.16.0"
+  },
+  "zurchin-cli": {
+    "dir": "packages/cli",
+    "name": "@zurchin/cli",
+    "version": "2.7.0"
+  },
+  "cli": {
+    "dir": "pidgeon/cli",
+    "name": "@pidgeon-ai/cli",
+    "version": "2.7.0"
+  },
+  "zurchin-mcp": {
+    "dir": "packages/mcp",
+    "name": "@zurchin/mcp",
+    "version": "1.19.0"
+  },
+  "mcp": {
+    "dir": "pidgeon/mcp",
+    "name": "@pidgeon-ai/mcp",
+    "version": "1.19.0"
+  },
+  "zurchin-ai-sdk": {
+    "dir": "packages/ai-sdk",
+    "name": "@zurchin/ai-sdk",
+    "version": "1.2.0"
+  },
+  "ai-sdk": {
+    "dir": "pidgeon/ai-sdk",
+    "name": "@pidgeon-ai/ai-sdk",
+    "version": "1.2.0"
+  },
+  "zurchin-n8n": {
+    "dir": "packages/n8n",
+    "name": "@zurchin/n8n-nodes-zurchin",
+    "version": "1.1.0"
+  }
+}

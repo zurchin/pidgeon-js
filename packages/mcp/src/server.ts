@@ -8,20 +8,21 @@
  *
  * Signing in is Pidgeon's OAuth server, as MCP authorization describes it:
  * `sign_in` opens the browser once, the person chooses what this machine may
- * do, and the session is refreshed from then on. `PIDGEON_API_KEY` wins
+ * do, and the session is refreshed from then on. `ZURCHIN_API_KEY` (or `PIDGEON_API_KEY`) wins
  * over a session, for machines with no browser.
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
 import {
+  apiKeyVariable,
   baseUrlOf,
   clientFromEnvironment,
   listAgentKeys,
   readSession,
   signIn,
   signOut,
-} from '@pidgeon-ai/sdk/node';
+} from '@zurchin/sdk/node';
 
 import { DESTROY, READ, registerApiTools, run, VERSION, WRITE } from './tools.ts';
 
@@ -69,10 +70,10 @@ export function createServer(options: Options = {}): McpServer {
     },
     ({ scope }) =>
       answer(async () => {
-        if (env.PIDGEON_API_KEY)
+        if (apiKeyVariable(env))
           return {
             signed_in: true,
-            with: 'PIDGEON_API_KEY',
+            with: apiKeyVariable(env),
             note: 'An API key is set; it is used instead of a session.',
           };
         let shown = '';
@@ -117,9 +118,9 @@ export function createServer(options: Options = {}): McpServer {
         const session = await readSession(baseUrl, env);
         return {
           base_url: baseUrl,
-          signed_in: Boolean(env.PIDGEON_API_KEY || session),
-          with: env.PIDGEON_API_KEY
-            ? 'PIDGEON_API_KEY'
+          signed_in: Boolean(apiKeyVariable(env) || session),
+          with: apiKeyVariable(env)
+            ? apiKeyVariable(env)
             : session
               ? `a session (${session.scope})`
               : null,

@@ -1,4 +1,4 @@
-# @pidgeon-ai/ai-sdk
+# @zurchin/ai-sdk
 
 Email for founders, teams and agents, as [Vercel AI SDK](https://ai-sdk.dev) tools.
 Give each agent its own address on @pidgeon.email or your domain: the model
@@ -6,14 +6,14 @@ sends, waits for the reply and answers in the thread, with your API key.
 https://pidgeon.ai
 
 ```sh
-npm install @pidgeon-ai/ai-sdk ai
+npm install @zurchin/ai-sdk ai
 ```
 
 ## An agent with an inbox
 
 ```ts
 import { generateText, isStepCount } from 'ai';
-import { pidgeonToolApproval, pidgeonTools } from '@pidgeon-ai/ai-sdk';
+import { pidgeonToolApproval, pidgeonTools } from '@zurchin/ai-sdk';
 
 const tools = pidgeonTools(); // PIDGEON_API_KEY
 
@@ -42,13 +42,13 @@ a person of the account before it goes.
   inboxes of their own; API keys, webhooks and the event log.
 - **Agents:** the account's agents, their keys and their reputation.
   Registering an agent makes a key, which belongs where the agent runs: use
-  `@pidgeon-ai/sdk` (`pidgeon.agents.setUp`) or the MCP server's
+  `@zurchin/sdk` (`pidgeon.agents.setUp`) or the MCP server's
   `set_up_agent` for that.
 - **Sign in with Pidgeon:** sites and mandates.
 
 They are the tools of Pidgeon's hosted MCP server (`https://pidgeon.ai/mcp`),
 with the same names, descriptions and inputs: this package builds them from
-that server's list in [`@pidgeon-ai/mcp`](https://www.npmjs.com/package/@pidgeon-ai/mcp),
+that server's list in [`@zurchin/mcp`](https://www.npmjs.com/package/@zurchin/mcp),
 so a tool added there is here on the next install. A key reaches what its
 access and pod allow: give an agent a `send` or `draft` key, not `admin`.
 
@@ -58,7 +58,7 @@ access and pod allow: give an agent a `send` or `draft` key, not `admin`.
 pidgeonTools({
   apiKey: 'pgn_live_…', // PIDGEON_API_KEY when left out
   baseUrl: 'https://pidgeon.ai',
-  client, // a Pidgeon from @pidgeon-ai/sdk, instead of the two above
+  client, // a Pidgeon from @zurchin/sdk, instead of the two above
   only: ['list_inboxes', 'send_message', 'await_message'], // a smaller set
 });
 ```
