@@ -1,15 +1,15 @@
 {
   "name": "@pidgeon-ai/n8n-nodes-pidgeon",
   "version": "1.0.1",
-  "description": "Email inboxes for AI agents in n8n: send, reply, read and wait for mail, and a trigger for the mail that arrives.",
+  "description": "Pidgeon in n8n. Email for founders, teams and agents: send, reply, read and wait for mail, and a trigger for the mail that arrives.",
   "keywords": [
     "n8n-community-node-package",
     "email",
     "inbox",
     "ai-agents",
     "agent-email",
-    "multi-tenant",
-    "white-label",
+    "team-inbox",
+    "unified-inbox",
     "n8n",
     "pidgeon",
     "webhook"

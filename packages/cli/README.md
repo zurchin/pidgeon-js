@@ -1,6 +1,6 @@
 # @pidgeon-ai/cli
 
-`pidgeon`: email inboxes for AI agents, from a terminal. Give an agent its own
+`pidgeon`: email for founders, teams and agents, from a terminal. Give an agent its own
 address on @pidgeon.email or your domain, send from it and wait for the reply.
 https://pidgeon.ai
 

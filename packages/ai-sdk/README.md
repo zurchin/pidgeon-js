@@ -1,6 +1,6 @@
 # @pidgeon-ai/ai-sdk
 
-Email inboxes for AI agents, as [Vercel AI SDK](https://ai-sdk.dev) tools.
+Email for founders, teams and agents, as [Vercel AI SDK](https://ai-sdk.dev) tools.
 Give each agent its own address on @pidgeon.email or your domain: the model
 sends, waits for the reply and answers in the thread, with your API key.
 https://pidgeon.ai

@@ -1,7 +1,7 @@
 # @pidgeon-ai/mcp
 
-Email inboxes for AI agents, as an MCP server. Give each agent its own address
-on @pidgeon.email or your own domain: it sends, waits for the reply and answers
+Email for founders, teams and agents, as an MCP server. Give each agent its own
+address beside your team's, on @pidgeon.email or your own domain: it sends, waits for the reply and answers
 in the thread. https://pidgeon.ai
 
 ```sh

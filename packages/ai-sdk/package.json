@@ -1,7 +1,7 @@
 {
   "name": "@pidgeon-ai/ai-sdk",
   "version": "1.0.1",
-  "description": "Email inboxes for AI agents, as Vercel AI SDK tools: send, wait for the reply and answer, on @pidgeon.email or your domain. The same tools as Pidgeon's MCP server.",
+  "description": "Pidgeon as Vercel AI SDK tools. Email for founders, teams and agents: send, wait for the reply and answer, on @pidgeon.email or your domain. The same tools as Pidgeon's MCP server.",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -16,8 +16,8 @@
     "ai-agents",
     "agent-email",
     "mcp",
-    "multi-tenant",
-    "white-label",
+    "team-inbox",
+    "unified-inbox",
     "vercel-ai-sdk",
     "ai-sdk",
     "tools",

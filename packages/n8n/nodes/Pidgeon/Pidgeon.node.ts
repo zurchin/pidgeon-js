@@ -30,7 +30,7 @@ export class Pidgeon implements INodeType {
     group: ['output'],
     version: 1,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-    description: 'Email inboxes for AI agents: send, reply, read and wait for mail',
+    description: 'Email for founders, teams and agents: send, reply, read and wait for mail',
     defaults: {
       name: 'Pidgeon',
     },

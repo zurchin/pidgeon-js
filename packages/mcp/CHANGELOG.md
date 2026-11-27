@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.0
+
+- `create_api_key` takes `deliver_to: {vercel_project_id, env_name, targets?}`: Pidgeon
+  puts the new key straight on the Vercel project as a sensitive variable, through the
+  account's Vercel installation, and the answer never holds the key. Needs SDK 2.14.0.
+
 ## 1.15.0
 
 - `set_inbox_agent`: link an inbox to an agent identity in its pod, or `null` to unlink

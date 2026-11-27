@@ -1,8 +1,8 @@
 # @pidgeon-ai/sdk
 
-Email inboxes for AI agents. Give each agent its own address on
-@pidgeon.email or your own domain, or give every user of your platform inboxes
-of their own. Plus Sign in with Pidgeon. https://pidgeon.ai
+Email for founders, teams and agents. Give each agent its own address beside
+your team's, on @pidgeon.email or your own domain, or give every user of your
+product inboxes of their own. https://pidgeon.ai
 
 ```sh
 npm install @pidgeon-ai/sdk

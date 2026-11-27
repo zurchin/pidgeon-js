@@ -1,7 +1,7 @@
 {
   "name": "@pidgeon-ai/sdk",
-  "version": "2.13.0",
-  "description": "Pidgeon's TypeScript SDK. Email inboxes for AI agents: give each agent its own address on @pidgeon.email or your domain, or white-label inboxes for every user of your platform. Plus Sign in with Pidgeon.",
+  "version": "2.14.0",
+  "description": "Pidgeon's TypeScript SDK. Email for founders, teams and agents: inboxes for your AI agents beside your team's, on @pidgeon.email or your own domains, with threads, webhooks and calendars.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
@@ -60,8 +60,8 @@
     "ai-agents",
     "agent-email",
     "mcp",
-    "multi-tenant",
-    "white-label",
+    "team-inbox",
+    "unified-inbox",
     "email-api",
     "oauth",
     "openid-connect"

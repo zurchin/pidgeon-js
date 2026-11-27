@@ -1,5 +1,5 @@
 /**
- * Pidgeon's TypeScript SDK: email inboxes for AI agents.
+ * Pidgeon's TypeScript SDK: email for founders, teams and agents.
  *
  * `new Pidgeon({ apiKey })`: `.inboxes`, `.messages` and `.drafts` give an
  * agent its own address on @pidgeon.email or your domain, send from it and
@@ -285,13 +285,51 @@ export type AgentDetail = Agent & {
   reputation: { band: Band; seen: string; next: string | null };
 };
 
-/** `agent`: an agent's inbox (the default). `events`: receives only, as events. */
-export type InboxKind = 'agent' | 'events';
+/**
+ * `agent`: an agent's inbox (the default). `person`: a person's own address,
+ * made in Pidgeon. `shared`: the team's, or some people's (hello@).
+ * `events`: receives only, as events.
+ */
+export type InboxKind = 'agent' | 'person' | 'shared' | 'events';
+
+/**
+ * Who reads an inbox: `just_me` (one person and the keys they add), `some`
+ * (the people chosen), `team` (everyone in the team) or `agent` (its keys and
+ * the people supervising it). An account-wide key never reaches a `just_me`
+ * inbox it was not added to.
+ */
+export type InboxAccess = 'just_me' | 'some' | 'team' | 'agent';
+
+/** What a key may do on an inbox it is added to; `draft` waits for a person. A person always sends. */
+export type MemberLevel = 'read' | 'draft' | 'send';
+
+export type InboxMember = {
+  id: string;
+  type: 'person' | 'key';
+  user_id: string | null;
+  key_id: string | null;
+  name: string;
+  email: string | null;
+  /** `oauth` for a connected app. */
+  key_kind: 'key' | 'oauth' | null;
+  level: MemberLevel;
+  created_at: string;
+};
+
+export type InboxMembers = {
+  inbox_id: string;
+  access: InboxAccess;
+  kind: InboxKind;
+  members: InboxMember[];
+  reassigned: { from_user: string | null; to_user: string | null; at: string } | null;
+};
 
 export type Inbox = {
   id: string;
   address: string;
   kind: InboxKind;
+  /** Who reads it. */
+  access: InboxAccess;
   display_name: string | null;
   pod_id: string;
   agent_id: string | null;
@@ -514,6 +552,24 @@ export type ApiKey = {
   test: boolean;
   created_at: string;
   last_used_at: string | null;
+};
+
+export type VercelTarget = 'production' | 'preview' | 'development';
+
+/** A key put on a Vercel project: where it went, and never the key. */
+export type DeliveredKey = {
+  id: string;
+  prefix: string;
+  name: string;
+  access: ApiKeyAccess;
+  pod_id: string | null;
+  delivered_to: {
+    vercel_project_id: string;
+    project_name: string;
+    env_name: string;
+    targets: VercelTarget[];
+    env_id: string;
+  };
 };
 
 export type BodyChoice = 'original' | 'clean';
@@ -810,16 +866,54 @@ export class Pidgeon {
       podId?: string;
       /** One of your own domains with mail on; `pidgeon.email` when left out. */
       domain?: string;
+      /** `team` (default) or `agent`: this key, and the people added to supervise it. */
+      access?: 'team' | 'agent';
     }): Promise<Inbox> =>
       this.request('POST', '/v1/email/inboxes', {
         body: {
           name: input.name,
           kind: input.kind ?? 'agent',
+          access: input.access,
           display_name: input.displayName,
           agent_id: input.agentId,
           pod_id: input.podId,
           domain: input.domain,
         },
+      }),
+    /** Who reads an inbox: its access, its people and its keys. */
+    members: (id: string): Promise<InboxMembers> =>
+      this.request('GET', `/v1/email/inboxes/${segment(id)}/members`),
+    /** Add a key (or a connected app) at a level, or a person of the team. Needs `admin`. */
+    addMember: (
+      id: string,
+      member: { keyId: string; level?: MemberLevel } | { userId: string },
+    ): Promise<InboxMembers> =>
+      this.request('POST', `/v1/email/inboxes/${segment(id)}/members`, {
+        body:
+          'keyId' in member
+            ? { key_id: member.keyId, level: member.level }
+            : { user_id: member.userId },
+      }),
+    /** Change the level a key was added at. Needs `admin`. */
+    updateMember: (id: string, memberId: string, level: MemberLevel): Promise<InboxMembers> =>
+      this.request('PATCH', `/v1/email/inboxes/${segment(id)}/members/${segment(memberId)}`, {
+        body: { level },
+      }),
+    /** Take a key or a person off an inbox. Needs `admin`. */
+    removeMember: (id: string, memberId: string): Promise<void> =>
+      this.request('DELETE', `/v1/email/inboxes/${segment(id)}/members/${segment(memberId)}`),
+    /**
+     * Choose who reads an inbox: `team`, `some` (the `people` given) or
+     * `agent` (its keys, and `people` supervising). Just me is a person's own
+     * choice, made in Pidgeon. Needs `admin`.
+     */
+    setAccess: (
+      id: string,
+      access: 'team' | 'some' | 'agent',
+      people?: string[],
+    ): Promise<InboxMembers> =>
+      this.request('PUT', `/v1/email/inboxes/${segment(id)}/access`, {
+        body: { access, people },
       }),
     /** Hold suspicious mail for a person. A key can turn holding on, never off. */
     holdSuspicious: (id: string): Promise<Inbox> =>
@@ -1335,6 +1429,33 @@ export class Pidgeon {
     }): Promise<{ id: string; key: string; prefix: string }> =>
       this.request('POST', '/v1/keys', {
         body: { name: input.name, access: input.access, pod_id: input.podId, test: input.test },
+      }),
+    /**
+     * Make a key and put it straight on a Vercel project as a sensitive
+     * variable, through the account's Vercel installation: the key is never
+     * in the answer. `targets`: production and preview when left out.
+     */
+    deliverToVercel: (input: {
+      name: string;
+      access?: ApiKeyAccess;
+      podId?: string;
+      test?: boolean;
+      vercelProjectId: string;
+      envName: string;
+      targets?: VercelTarget[];
+    }): Promise<DeliveredKey> =>
+      this.request('POST', '/v1/keys', {
+        body: {
+          name: input.name,
+          access: input.access,
+          pod_id: input.podId,
+          test: input.test,
+          deliver_to: {
+            vercel_project_id: input.vercelProjectId,
+            env_name: input.envName,
+            targets: input.targets,
+          },
+        },
       }),
     revoke: (id: string): Promise<void> => this.request('DELETE', `/v1/keys/${segment(id)}`),
   };

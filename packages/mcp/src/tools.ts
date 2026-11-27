@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 import { PidgeonError, WEBHOOK_EVENTS, type Pidgeon } from '@pidgeon-ai/sdk';
 
-export const VERSION = '1.15.0';
+export const VERSION = '1.16.0';
 
 export const json = (value: unknown): CallToolResult => ({
   content: [{ type: 'text', text: JSON.stringify(value ?? { ok: true }, null, 2) }],
@@ -123,21 +123,13 @@ export const DESTROY = {
 export const SEND = { readOnlyHint: false, destructiveHint: true, openWorldHint: true } as const;
 
 /**
- * Register every tool that is only an API call, in the order Pidgeon is sold
- * (Patrick, 20 November: email inboxes for AI agents): Email, then pods and
- * the account, then agents, then Sign in with Pidgeon, then Bouncer's tools,
- * which stay for the clients that call them but are no longer offered.
- * `signInHint` is what to say when the caller is not signed in;
- * `agentSetupTools` registers a server's own tools for setting agents up
- * (they make keys, so they live where keys are made) at the head of the
- * agents' tools.
+ * Register every tool that is only an API call, in the order Pidgeon is sold:
+ * Email, then pods and the account. Agent identities' and Sign in with
+ * Pidgeon's tools are no longer listed (Patrick, 23 November: killed with
+ * Bouncer); their `/v1` operations still answer for the clients that call
+ * them. `signInHint` is what to say when the caller is not signed in.
  */
-export function registerApiTools(
-  server: McpServer,
-  pidgeon: Pidgeon,
-  signInHint?: string,
-  agentSetupTools?: () => void,
-): void {
+export function registerApiTools(server: McpServer, pidgeon: Pidgeon, signInHint?: string): void {
   const answer = (work: () => Promise<unknown>) => run(work, signInHint);
 
   // ----------------------------------------------------------------- Email
@@ -146,12 +138,16 @@ export function registerApiTools(
     'create_inbox',
     {
       title: 'Make an inbox',
-      description:
-        'Make an inbox. `name` is the part before the @. Optionally pass agent_id to link it to that agent identity: its mail then carries its signed declaration, and the agent signs in to websites under its address (linking needs a verified domain).',
+      description: 'Make an inbox. `name` is the part before the @.',
       inputSchema: {
         name: z.string().min(1).max(64),
-        kind: z.enum(['agent', 'events']).default('agent'),
-        agent_id: z.string().uuid().optional(),
+        kind: z.enum(['agent', 'shared', 'events']).default('agent'),
+        access: z
+          .enum(['team', 'agent'])
+          .optional()
+          .describe(
+            'Who reads it: team (the default, everyone in the team) or agent (this connection, and the people added to supervise it).',
+          ),
         display_name: z.string().max(120).optional(),
         pod_id: z.string().uuid().optional(),
         domain: z
@@ -169,7 +165,7 @@ export function registerApiTools(
           domain: args.domain,
           name: args.name,
           kind: args.kind,
-          agentId: args.agent_id,
+          access: args.access,
           displayName: args.display_name,
           podId: args.pod_id,
         }),
@@ -226,18 +222,88 @@ export function registerApiTools(
   );
 
   server.registerTool(
-    'set_inbox_agent',
+    'get_inbox_members',
     {
-      title: 'Link an inbox to an agent identity',
+      title: 'See who reads an inbox',
       description:
-        'Link the inbox to one of the account’s agent identities in the same pod (list_agents), so its mail carries that agent’s signed declaration and the agent signs in to websites under its address; null unlinks it. Optional: an inbox works without one. Needs a verified domain and the Everything level.',
+        'Who reads an inbox: its access (just_me: one person and the agents they add; some: the people chosen; team: everyone in the team; agent: its agents and the people supervising it) and its people and keys, each key at its level (read, draft, send).',
+      inputSchema: { inbox_id: z.string().uuid() },
+      annotations: READ,
+    },
+    ({ inbox_id }) => answer(() => pidgeon.inboxes.members(inbox_id)),
+  );
+
+  server.registerTool(
+    'add_inbox_member',
+    {
+      title: 'Add a key or a person to an inbox',
+      description:
+        'Add an API key or a connected app (key_id) at a level: read, draft (what it writes waits for a person) or send; or a person of the team (user_id), who always sends. Not to a Just me inbox: only its person adds to it, in Pidgeon. Needs the Everything level.',
       inputSchema: {
         inbox_id: z.string().uuid(),
-        agent_id: z.string().uuid().nullable(),
+        key_id: z.string().uuid().optional(),
+        level: z.enum(['read', 'draft', 'send']).optional(),
+        user_id: z.string().uuid().optional(),
       },
       annotations: DESTROY,
     },
-    ({ inbox_id, agent_id }) => answer(() => pidgeon.inboxes.setAgent(inbox_id, agent_id)),
+    ({ inbox_id, key_id, level, user_id }) =>
+      answer(() =>
+        pidgeon.inboxes.addMember(
+          inbox_id,
+          key_id ? { keyId: key_id, level } : { userId: user_id ?? '' },
+        ),
+      ),
+  );
+
+  server.registerTool(
+    'update_inbox_member',
+    {
+      title: 'Change a key’s level on an inbox',
+      description:
+        'Change what a key on an inbox may do there: read, draft (waits for a person) or send. member_id is from get_inbox_members. Needs the Everything level.',
+      inputSchema: {
+        inbox_id: z.string().uuid(),
+        member_id: z.string().uuid(),
+        level: z.enum(['read', 'draft', 'send']),
+      },
+      annotations: DESTROY,
+    },
+    ({ inbox_id, member_id, level }) =>
+      answer(() => pidgeon.inboxes.updateMember(inbox_id, member_id, level)),
+  );
+
+  server.registerTool(
+    'remove_inbox_member',
+    {
+      title: 'Take a key or a person off an inbox',
+      description:
+        'Take a key, a connected app or a person off an inbox (member_id from get_inbox_members). Needs the Everything level.',
+      inputSchema: { inbox_id: z.string().uuid(), member_id: z.string().uuid() },
+      annotations: DESTROY,
+    },
+    ({ inbox_id, member_id }) =>
+      answer(async () => {
+        await pidgeon.inboxes.removeMember(inbox_id, member_id);
+        return { removed: member_id };
+      }),
+  );
+
+  server.registerTool(
+    'set_inbox_access',
+    {
+      title: 'Choose who reads an inbox',
+      description:
+        'team: everyone in the team. some: the people in people (user ids of the team). agent: its keys, and the people in people supervising. Just me is a person’s own choice, made in Pidgeon. Its keys stay on it. Needs the Everything level.',
+      inputSchema: {
+        inbox_id: z.string().uuid(),
+        access: z.enum(['team', 'some', 'agent']),
+        people: z.array(z.string().uuid()).optional(),
+      },
+      annotations: DESTROY,
+    },
+    ({ inbox_id, access, people }) =>
+      answer(() => pidgeon.inboxes.setAccess(inbox_id, access, people)),
   );
 
   server.registerTool(
@@ -1066,7 +1132,7 @@ export function registerApiTools(
     {
       title: 'Make an API key',
       description:
-        'Make an API key for a server, an agent or a CI job. The answer has `key`, shown this once: put it straight where it will live (a secret store, an environment variable) and keep it out of chat, logs and files. Access is read, draft (writes drafts a person approves, never sends), send or admin, and never more than your own; a test key makes only test keys. Give the narrowest that works. Needs the Everything level, of the whole account.',
+        'Make an API key for a server, an agent or a CI job. The answer has `key`, shown this once: put it straight where it will live (a secret store, an environment variable) and keep it out of chat, logs and files. For a Vercel project, pass deliver_to instead: Pidgeon puts the key on the project as a sensitive variable through the account’s Vercel installation, and the answer never holds it, only where it went (delivered_to). Access is read, draft (writes drafts a person approves, never sends), send or admin, and never more than your own; a test key makes only test keys. Give the narrowest that works. Needs the Everything level, of the whole account.',
       inputSchema: {
         name: z.string().min(1).max(60).describe('Where the key will live, e.g. "support agent".'),
         access: z
@@ -1075,11 +1141,37 @@ export function registerApiTools(
           .describe('What it may do; read when left out.'),
         pod_id: z.string().uuid().optional().describe('Limit it to one pod.'),
         test: z.boolean().optional().describe('A test key: its mail never leaves Pidgeon.'),
+        deliver_to: z
+          .object({
+            vercel_project_id: z.string().describe('The Vercel project, `prj_…`.'),
+            env_name: z.string().describe('The variable’s name, e.g. PIDGEON_API_KEY.'),
+            targets: z
+              .array(z.enum(['production', 'preview', 'development']))
+              .min(1)
+              .optional()
+              .describe('Its environments; production and preview when left out.'),
+          })
+          .optional()
+          .describe(
+            'Put the key on a Vercel project the account’s Vercel installation was given, instead of answering it.',
+          ),
       },
       annotations: WRITE,
     },
-    ({ name, access, pod_id, test }) =>
-      answer(() => pidgeon.keys.create({ name, access, podId: pod_id, test })),
+    ({ name, access, pod_id, test, deliver_to }) =>
+      answer(() =>
+        deliver_to
+          ? pidgeon.keys.deliverToVercel({
+              name,
+              access,
+              podId: pod_id,
+              test,
+              vercelProjectId: deliver_to.vercel_project_id,
+              envName: deliver_to.env_name,
+              targets: deliver_to.targets,
+            })
+          : pidgeon.keys.create({ name, access, podId: pod_id, test }),
+      ),
   );
 
   server.registerTool(
@@ -1143,240 +1235,5 @@ export function registerApiTools(
     },
     ({ webhook_id }) =>
       answer(async () => (await pidgeon.webhooks.remove(webhook_id), { removed: webhook_id })),
-  );
-
-  // ------------------------------------------------------- Agent identities
-
-  agentSetupTools?.();
-
-  server.registerTool(
-    'list_agents',
-    {
-      title: 'List agent identities',
-      description:
-        'The account’s agent identities: who its agents are when they sign mail and sign in.',
-      inputSchema: { cursor: z.string().optional() },
-      annotations: READ,
-    },
-    ({ cursor }) => answer(() => pidgeon.agents.list({ cursor })),
-  );
-
-  server.registerTool(
-    'get_agent',
-    {
-      title: 'Read an agent identity',
-      description:
-        'An agent identity: its published keys (public facts only), its directory and its operator’s reputation.',
-      inputSchema: { agent_id: z.string().uuid() },
-      annotations: READ,
-    },
-    ({ agent_id }) => answer(() => pidgeon.agents.get(agent_id)),
-  );
-
-  server.registerTool(
-    'get_reputation',
-    {
-      title: 'Read reputation',
-      description:
-        'How websites treat the account’s agents: the band (unverified, new, good, flagged, suspended), what it means, and what would raise it. Reputation belongs to the operator, so every agent identity of the account shares it.',
-      inputSchema: {
-        agent_id: z
-          .string()
-          .uuid()
-          .optional()
-          .describe('Any of the account’s agent identities; the first if left out.'),
-      },
-      annotations: READ,
-    },
-    ({ agent_id }) =>
-      answer(async () => {
-        const id = agent_id ?? (await pidgeon.agents.list({ limit: 1 })).data[0]?.id;
-        if (!id)
-          return {
-            reputation: null,
-            note: 'The account has no agent identities yet: register one first (set_up_agent, or register_agent on the hosted server).',
-          };
-        const agent = await pidgeon.agents.get(id);
-        return { agent_id: agent.id, ...agent.reputation };
-      }),
-  );
-
-  server.registerTool(
-    'rename_agent',
-    {
-      title: 'Rename an agent identity',
-      description:
-        'Change an agent identity’s name, what it does, or both: what websites see when it arrives. Needs the Everything level.',
-      inputSchema: {
-        agent_id: z.string().uuid(),
-        name: z.string().min(1).max(80).optional(),
-        purpose: z.string().max(280).optional().describe('What it does, in a sentence.'),
-      },
-      annotations: DESTROY,
-    },
-    ({ agent_id, name, purpose }) =>
-      answer(() => pidgeon.agents.update(agent_id, { name, purpose })),
-  );
-
-  server.registerTool(
-    'revoke_agent_key',
-    {
-      title: 'Revoke an agent identity’s key',
-      description:
-        'Revoke one of an agent identity’s keys, by its kid (get_agent lists them): requests signed with it stop verifying at once. Its other keys stay. Ask the person first. Needs the Everything level.',
-      inputSchema: { agent_id: z.string().uuid(), kid: z.string().min(1) },
-      annotations: DESTROY,
-    },
-    ({ agent_id, kid }) =>
-      answer(async () => {
-        await pidgeon.agents.revokeKey(agent_id, kid);
-        return { revoked: kid };
-      }),
-  );
-
-  server.registerTool(
-    'revoke_agent',
-    {
-      title: 'Revoke an agent identity',
-      description:
-        'Revoke an agent identity and every key it has: no request it signs verifies again, and it cannot be undone. Ask the person first. Needs the Everything level.',
-      inputSchema: { agent_id: z.string().uuid() },
-      annotations: DESTROY,
-    },
-    ({ agent_id }) =>
-      answer(async () => {
-        await pidgeon.agents.revoke(agent_id);
-        return { revoked: agent_id };
-      }),
-  );
-
-  // -------------------------------------------------------------------- Auth
-
-  server.registerTool(
-    'list_sites',
-    {
-      title: 'List Sign in with Pidgeon sites',
-      description: 'Sites registered for Sign in with Pidgeon.',
-      inputSchema: {},
-      annotations: READ,
-    },
-    () => answer(() => pidgeon.sites.list()),
-  );
-
-  server.registerTool(
-    'register_site',
-    {
-      title: 'Register a site for Sign in with Pidgeon',
-      description:
-        'Register a site so people and agents can sign in to it with Pidgeon. Answers `client_secret` once: keep it on the site’s server.',
-      inputSchema: {
-        name: z.string().min(1).max(120),
-        redirect_uris: z
-          .array(z.string().url())
-          .min(1)
-          .max(20)
-          .describe('https addresses (http on localhost), matched exactly.'),
-        pod_id: z.string().uuid().optional(),
-      },
-      annotations: WRITE,
-    },
-    ({ name, redirect_uris, pod_id }) =>
-      answer(() => pidgeon.sites.create({ name, redirectUris: redirect_uris, podId: pod_id })),
-  );
-
-  server.registerTool(
-    'update_site',
-    {
-      title: 'Edit a site',
-      description:
-        'Rename a Sign in with Pidgeon site, or replace its return addresses (send the whole new list). Its client_id and secret stay.',
-      inputSchema: {
-        client_id: z.string(),
-        name: z.string().min(1).max(120).optional(),
-        redirect_uris: z
-          .array(z.string().url())
-          .min(1)
-          .max(20)
-          .optional()
-          .describe('The whole new list: https addresses (http on localhost), matched exactly.'),
-      },
-      annotations: DESTROY,
-    },
-    ({ client_id, name, redirect_uris }) =>
-      answer(() => pidgeon.sites.update(client_id, { name, redirectUris: redirect_uris })),
-  );
-
-  server.registerTool(
-    'rotate_site_secret',
-    {
-      title: 'Rotate a site’s secret',
-      description:
-        'Give a site a new client_secret, answered once: put it on the site’s server. The old one stops working at once, so the site cannot sign anyone in until it has the new one.',
-      inputSchema: { client_id: z.string() },
-      annotations: DESTROY,
-    },
-    ({ client_id }) => answer(() => pidgeon.sites.rotateSecret(client_id)),
-  );
-
-  server.registerTool(
-    'remove_site',
-    {
-      title: 'Remove a site',
-      description: 'Remove a Sign in with Pidgeon site; its sign-ins stop working.',
-      inputSchema: { client_id: z.string() },
-      annotations: DESTROY,
-    },
-    ({ client_id }) =>
-      answer(async () => (await pidgeon.sites.remove(client_id), { removed: client_id })),
-  );
-
-  server.registerTool(
-    'request_mandate',
-    {
-      title: 'Ask a person to let an agent act for them',
-      description:
-        'Ask a person’s permission for one of your agents to act for them at one site. Answers `consent_url`: send it to the person, who allows or declines.',
-      inputSchema: {
-        agent_id: z.string().uuid(),
-        client_id: z.string(),
-        scope: z.string().min(1).max(500),
-        description: z.string().min(1).max(280),
-        days: z.number().int().min(1).max(90).optional(),
-      },
-      annotations: WRITE,
-    },
-    (args) =>
-      answer(() =>
-        pidgeon.mandates.create({
-          agentId: args.agent_id,
-          clientId: args.client_id,
-          scope: args.scope,
-          description: args.description,
-          days: args.days,
-        }),
-      ),
-  );
-
-  server.registerTool(
-    'list_mandates',
-    {
-      title: 'List mandates',
-      description: 'The permissions people gave your agents to act for them, and the ones waiting.',
-      inputSchema: {},
-      annotations: READ,
-    },
-    () => answer(() => pidgeon.mandates.list()),
-  );
-
-  server.registerTool(
-    'revoke_mandate',
-    {
-      title: 'Revoke a mandate',
-      description: 'End a mandate: the agent can no longer act for the person.',
-      inputSchema: { mandate_id: z.string().uuid() },
-      annotations: DESTROY,
-    },
-    ({ mandate_id }) =>
-      answer(async () => (await pidgeon.mandates.revoke(mandate_id), { revoked: mandate_id })),
   );
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.0
+
+- `keys.deliverToVercel({ name, vercelProjectId, envName, targets? })`: make a key and
+  have Pidgeon put it straight on a Vercel project as a sensitive variable, through the
+  account's Vercel installation (`POST /v1/keys`, `deliver_to`). The answer never holds
+  the key, only `delivered_to`. Needs an `admin` key of the whole account.
+
 ## 2.13.0
 
 - `inboxes.setAgent(id, agentId)`: link an existing inbox to an agent identity in its pod,

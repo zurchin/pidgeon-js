@@ -34,7 +34,7 @@ export type Io = {
   openBrowser?: boolean;
 };
 
-const HELP = `pidgeon ${VERSION}: email inboxes for AI agents, from a terminal.
+const HELP = `pidgeon ${VERSION}: email for founders, teams and agents, from a terminal.
 
 Signing in
   pidgeon login [--scope admin|send|draft|read] [--no-browser]
