@@ -153,24 +153,33 @@ jobs:
           }
           if listed; then
             echo "::notice::The MCP registry already lists $version."
-            exit 0
+          else
+            login "$domain"
+            # The registry checks npm itself, and can see the new version minutes after npm says it
+            # has it (20 November: refused with a 404 for 1.13.0): try again rather than fail.
+            for attempt in 1 2 3 4 5 6; do
+              ./mcp-publisher publish && break
+              [ "$attempt" = 6 ] && exit 1
+              sleep 30
+            done
+            # And it can take minutes to list what it accepted (20 November: over one).
+            for attempt in $(seq 1 30); do
+              listed && break
+              [ "$attempt" = 30 ] && { echo "The MCP registry does not list $version five minutes after publishing." >&2; exit 1; }
+              sleep 10
+            done
           fi
-          login "$domain"
-          # The registry checks npm itself, and can see the new version minutes after npm says it
-          # has it (20 November: refused with a 404 for 1.13.0): try again rather than fail.
-          for attempt in 1 2 3 4 5 6; do
-            ./mcp-publisher publish && break
-            [ "$attempt" = 6 ] && exit 1
-            sleep 30
-          done
-          # And it can take minutes to list what it accepted (20 November: over one).
-          for attempt in $(seq 1 30); do
-            listed && break
-            [ "$attempt" = 30 ] && { echo "The MCP registry does not list $version five minutes after publishing." >&2; exit 1; }
-            sleep 10
-          done
-          if [ "$server" = "com.zurchin/mcp" ]; then
+          # Not behind the publish: a rerun of a listed version (workflow_dispatch,
+          # package zurchin-mcp) still deprecates, and skips it once nothing is active.
+          still_active() {
+            curl -sSf "https://registry.modelcontextprotocol.io/v0/servers?search=ai.pidgeon/mcp&limit=100" \
+              | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.exit(JSON.parse(s).servers.some(e=>e.server.name==='ai.pidgeon/mcp'&&e._meta?.['io.modelcontextprotocol.registry/official']?.status==='active')?0:1))"
+          }
+          if [ "$server" = "com.zurchin/mcp" ] && still_active; then
             login pidgeon.ai
-            ./mcp-publisher status --status deprecated --all-versions \
+            # --yes: with --all-versions it asks "Continue? [y/N]" on stdin, and a
+            # run has no one to answer (zurchin-mcp-v1.19.0 stopped there).
+            # mcp-publisher v1.8.9, cmd/publisher/commands/status.go.
+            ./mcp-publisher status --status deprecated --all-versions --yes \
               --message "Pidgeon is now Zurchin: com.zurchin/mcp" ai.pidgeon/mcp
           fi
