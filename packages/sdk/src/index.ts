@@ -326,7 +326,10 @@ export type InboxMembers = {
 
 export type Inbox = {
   id: string;
+  /** Its main address: the one its mail is sent from. */
   address: string;
+  /** Every address it receives at, the main one first. */
+  addresses?: string[];
   kind: InboxKind;
   /** Who reads it. */
   access: InboxAccess;
