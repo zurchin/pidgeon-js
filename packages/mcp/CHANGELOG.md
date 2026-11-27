@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.17.0
+
+- `deliver_api_key_to_vercel {name, vercel_project_id, env_name, targets?, access?, pod_id?,
+test?}`: delivery to Vercel is its own tool, with every parameter flat. `create_api_key`
+  is back to what it was in 1.15.0 and no longer takes `deliver_to`: claude.ai's
+  connector kept serving its earlier definition, so the parameter never reached agents.
+
 ## 1.16.0
 
 - `create_api_key` takes `deliver_to: {vercel_project_id, env_name, targets?}`: Pidgeon

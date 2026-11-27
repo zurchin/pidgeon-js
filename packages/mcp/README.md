@@ -64,7 +64,7 @@ session is refreshed from then on. On a machine with no browser, set
   `update_calendar_event`, `delete_calendar_event`
 - **Pods and the account:** `sign_in`, `sign_out`, `status`, `list_pods`,
   `create_pod`, `rename_pod`, `move_to_pod`, `remove_pod`, `list_events`,
-  `list_api_keys`, `create_api_key`, `revoke_api_key`, `list_webhooks`,
+  `list_api_keys`, `create_api_key`, `deliver_api_key_to_vercel`, `revoke_api_key`, `list_webhooks`,
   `add_webhook`, `remove_webhook`
 - **Agent identities:** `set_up_agent`, `create_agent_key`, `list_agents`, `get_agent`,
   `get_reputation`, `rename_agent`, `revoke_agent_key`, `revoke_agent`

@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 import { PidgeonError, WEBHOOK_EVENTS, type Pidgeon } from '@pidgeon-ai/sdk';
 
-export const VERSION = '1.16.0';
+export const VERSION = '1.17.0';
 
 export const json = (value: unknown): CallToolResult => ({
   content: [{ type: 'text', text: JSON.stringify(value ?? { ok: true }, null, 2) }],
@@ -1132,7 +1132,7 @@ export function registerApiTools(server: McpServer, pidgeon: Pidgeon, signInHint
     {
       title: 'Make an API key',
       description:
-        'Make an API key for a server, an agent or a CI job. The answer has `key`, shown this once: put it straight where it will live (a secret store, an environment variable) and keep it out of chat, logs and files. For a Vercel project, pass deliver_to instead: Pidgeon puts the key on the project as a sensitive variable through the account’s Vercel installation, and the answer never holds it, only where it went (delivered_to). Access is read, draft (writes drafts a person approves, never sends), send or admin, and never more than your own; a test key makes only test keys. Give the narrowest that works. Needs the Everything level, of the whole account.',
+        'Make an API key for a server, an agent or a CI job. The answer has `key`, shown this once: put it straight where it will live (a secret store, an environment variable) and keep it out of chat, logs and files. Access is read, draft (writes drafts a person approves, never sends), send or admin, and never more than your own; a test key makes only test keys. Give the narrowest that works. Needs the Everything level, of the whole account.',
       inputSchema: {
         name: z.string().min(1).max(60).describe('Where the key will live, e.g. "support agent".'),
         access: z
@@ -1141,36 +1141,50 @@ export function registerApiTools(server: McpServer, pidgeon: Pidgeon, signInHint
           .describe('What it may do; read when left out.'),
         pod_id: z.string().uuid().optional().describe('Limit it to one pod.'),
         test: z.boolean().optional().describe('A test key: its mail never leaves Pidgeon.'),
-        deliver_to: z
-          .object({
-            vercel_project_id: z.string().describe('The Vercel project, `prj_…`.'),
-            env_name: z.string().describe('The variable’s name, e.g. PIDGEON_API_KEY.'),
-            targets: z
-              .array(z.enum(['production', 'preview', 'development']))
-              .min(1)
-              .optional()
-              .describe('Its environments; production and preview when left out.'),
-          })
-          .optional()
-          .describe(
-            'Put the key on a Vercel project the account’s Vercel installation was given, instead of answering it.',
-          ),
       },
       annotations: WRITE,
     },
-    ({ name, access, pod_id, test, deliver_to }) =>
+    ({ name, access, pod_id, test }) =>
+      answer(() => pidgeon.keys.create({ name, access, podId: pod_id, test })),
+  );
+
+  // Its own tool, every parameter flat: a client that keeps an earlier `create_api_key`
+  // or drops a nested parameter still finds it (27 November: claude.ai's connector did).
+  server.registerTool(
+    'deliver_api_key_to_vercel',
+    {
+      title: 'Make an API key and put it on a Vercel project',
+      description:
+        'Make an API key and have Pidgeon put it straight on a Vercel project as a sensitive variable, through the account’s Vercel installation, so the key never passes through this chat. The answer never holds the key, only where it went (delivered_to). The project must be one the account’s Vercel installation was given; a variable of that name that Pidgeon did not set is never replaced. Access is read, draft, send or admin, and never more than your own. Needs the Everything level, of the whole account.',
+      inputSchema: {
+        name: z.string().min(1).max(60).describe('Where the key will live, e.g. "support agent".'),
+        vercel_project_id: z.string().describe('The Vercel project, `prj_…`.'),
+        env_name: z.string().describe('The variable’s name, e.g. PIDGEON_API_KEY.'),
+        targets: z
+          .array(z.enum(['production', 'preview', 'development']))
+          .min(1)
+          .optional()
+          .describe('Its environments; production and preview when left out.'),
+        access: z
+          .enum(['read', 'draft', 'send', 'admin'])
+          .optional()
+          .describe('What it may do; read when left out.'),
+        pod_id: z.string().uuid().optional().describe('Limit it to one pod.'),
+        test: z.boolean().optional().describe('A test key: its mail never leaves Pidgeon.'),
+      },
+      annotations: WRITE,
+    },
+    ({ name, vercel_project_id, env_name, targets, access, pod_id, test }) =>
       answer(() =>
-        deliver_to
-          ? pidgeon.keys.deliverToVercel({
-              name,
-              access,
-              podId: pod_id,
-              test,
-              vercelProjectId: deliver_to.vercel_project_id,
-              envName: deliver_to.env_name,
-              targets: deliver_to.targets,
-            })
-          : pidgeon.keys.create({ name, access, podId: pod_id, test }),
+        pidgeon.keys.deliverToVercel({
+          name,
+          access,
+          podId: pod_id,
+          test,
+          vercelProjectId: vercel_project_id,
+          envName: env_name,
+          targets,
+        }),
       ),
   );
 
