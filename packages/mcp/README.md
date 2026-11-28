@@ -1,8 +1,8 @@
 # @zurchin/mcp
 
 Email for founders, teams and agents, as an MCP server. Give each agent its own
-address beside your team's, on @pidgeon.email or your own domain: it sends, waits for the reply and answers
-in the thread. https://pidgeon.ai
+address beside your team's, on @zurchin.email or your own domain: it sends, waits for the reply and answers
+in the thread. https://zurchin.com
 
 ```sh
 claude mcp add pidgeon -- npx -y @zurchin/mcp
@@ -25,7 +25,7 @@ Give every user of your platform inboxes of their own, white-labelled on their
 domain: one pod per user (`create_pod`), and `pod_id` on `create_inbox`. A key
 of a pod reaches only that pod's mail.
 
-## Sign in with Pidgeon
+## Sign in with Zurchin
 
 An agent can also sign in to websites as itself, with a key of its own.
 `set_up_agent` registers it and makes that key on this machine.
@@ -40,8 +40,8 @@ No tool ever answers a private key, so it never reaches the model.
 
 ## Signing in
 
-The first tool that needs Pidgeon says so; `sign_in` opens the browser, where
-you sign in to Pidgeon and choose what this machine may do. That is Pidgeon's
+The first tool that needs Zurchin says so; `sign_in` opens the browser, where
+you sign in to Zurchin and choose what this machine may do. That is Zurchin's
 OAuth server, as MCP authorization describes it (discovery at
 `/.well-known/oauth-protected-resource/mcp`, PKCE, a loopback redirect). The
 session is refreshed from then on. On a machine with no browser, set
@@ -68,7 +68,7 @@ session is refreshed from then on. On a machine with no browser, set
   `add_webhook`, `remove_webhook`
 - **Agent identities:** `set_up_agent`, `create_agent_key`, `list_agents`, `get_agent`,
   `get_reputation`, `rename_agent`, `revoke_agent_key`, `revoke_agent`
-- **Sign in with Pidgeon:** `list_sites`, `register_site`, `update_site`,
+- **Sign in with Zurchin:** `list_sites`, `register_site`, `update_site`,
   `rotate_site_secret`, `remove_site`, `request_mandate`, `list_mandates`,
   `revoke_mandate`
 

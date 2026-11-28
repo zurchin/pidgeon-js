@@ -1,6 +1,6 @@
 {
   "name": "@pidgeon-ai/mcp",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "description": "Now @zurchin/mcp: Pidgeon is now Zurchin. This last release re-exports it.",
   "license": "Apache-2.0",
   "type": "module",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.1
+
+- The description and README say Zurchin, zurchin.com and @zurchin.email, not Pidgeon. No code changed.
+
 ## 2.7.0
 
 - Pidgeon is now Zurchin: this version is published as `@zurchin/cli`, and the last `@zurchin/cli` (2.7.0) only re-exports it and says so once.

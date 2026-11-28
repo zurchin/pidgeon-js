@@ -1,7 +1,7 @@
 {
   "name": "@zurchin/sdk",
-  "version": "2.16.0",
-  "description": "Pidgeon's TypeScript SDK. Email for founders, teams and agents: inboxes for your AI agents beside your team's, on @pidgeon.email or your own domains, with threads, webhooks and calendars.",
+  "version": "2.16.1",
+  "description": "Zurchin's TypeScript SDK. Email for founders, teams and agents: inboxes for your AI agents beside your team's, on @zurchin.email or your own domains, with threads, webhooks and calendars.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {

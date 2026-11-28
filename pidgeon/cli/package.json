@@ -1,6 +1,6 @@
 {
   "name": "@pidgeon-ai/cli",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Now @zurchin/cli: Pidgeon is now Zurchin. This last release re-exports it.",
   "license": "Apache-2.0",
   "type": "module",

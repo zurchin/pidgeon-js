@@ -1,7 +1,7 @@
 {
   "name": "@zurchin/cli",
-  "version": "2.7.0",
-  "description": "Pidgeon from a terminal. Email for founders, teams and agents: make an inbox on @pidgeon.email or your domain, send, and wait for the reply.",
+  "version": "2.7.1",
+  "description": "Zurchin from a terminal. Email for founders, teams and agents: make an inbox on @zurchin.email or your domain, send, and wait for the reply.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {

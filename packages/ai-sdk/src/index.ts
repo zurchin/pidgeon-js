@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { DEFAULT_BASE_URL, envSetting, Pidgeon } from '@zurchin/sdk';
 import { registerApiTools } from '@zurchin/mcp/tools';
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.2.1';
 
 export type PidgeonToolsOptions = {
   /** A Pidgeon API key. `ZURCHIN_API_KEY`, else `PIDGEON_API_KEY`, when left out. */

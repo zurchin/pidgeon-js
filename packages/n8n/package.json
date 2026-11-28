@@ -1,7 +1,7 @@
 {
   "name": "@zurchin/n8n-nodes-zurchin",
-  "version": "1.1.0",
-  "description": "Pidgeon in n8n. Email for founders, teams and agents: send, reply, read and wait for mail, and a trigger for the mail that arrives.",
+  "version": "1.1.1",
+  "description": "Zurchin in n8n. Email for founders, teams and agents: send, reply, read and wait for mail, and a trigger for the mail that arrives.",
   "keywords": [
     "n8n-community-node-package",
     "email",
@@ -16,7 +16,7 @@
   ],
   "license": "MIT",
   "author": {
-    "name": "Pidgeon",
+    "name": "Zurchin",
     "email": "support@pidgeon.ai"
   },
   "homepage": "https://zurchin.com",

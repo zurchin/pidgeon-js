@@ -1,6 +1,6 @@
 # @pidgeon-ai/mcp
 
-**Now [`@zurchin/mcp`](https://www.npmjs.com/package/@zurchin/mcp).** Pidgeon is now Zurchin. This last release of `@pidgeon-ai/mcp` only re-exports `@zurchin/mcp` 1.19.0 and says so once when it loads:
+**Now [`@zurchin/mcp`](https://www.npmjs.com/package/@zurchin/mcp).** Pidgeon is now Zurchin. This last release of `@pidgeon-ai/mcp` only re-exports `@zurchin/mcp` 1.19.1 and says so once when it loads:
 
 ```
 npm install @zurchin/mcp

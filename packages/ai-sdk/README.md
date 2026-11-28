@@ -1,9 +1,9 @@
 # @zurchin/ai-sdk
 
 Email for founders, teams and agents, as [Vercel AI SDK](https://ai-sdk.dev) tools.
-Give each agent its own address on @pidgeon.email or your domain: the model
+Give each agent its own address on @zurchin.email or your domain: the model
 sends, waits for the reply and answers in the thread, with your API key.
-https://pidgeon.ai
+https://zurchin.com
 
 ```sh
 npm install @zurchin/ai-sdk ai
@@ -44,9 +44,9 @@ a person of the account before it goes.
   Registering an agent makes a key, which belongs where the agent runs: use
   `@zurchin/sdk` (`pidgeon.agents.setUp`) or the MCP server's
   `set_up_agent` for that.
-- **Sign in with Pidgeon:** sites and mandates.
+- **Sign in with Zurchin:** sites and mandates.
 
-They are the tools of Pidgeon's hosted MCP server (`https://pidgeon.ai/mcp`),
+They are the tools of Zurchin's hosted MCP server (`https://zurchin.com/mcp`),
 with the same names, descriptions and inputs: this package builds them from
 that server's list in [`@zurchin/mcp`](https://www.npmjs.com/package/@zurchin/mcp),
 so a tool added there is here on the next install. A key reaches what its
@@ -72,5 +72,5 @@ as the tool's error, in words the model can act on.
 
 ## Version 1
 
-Version 1 is for the new Pidgeon. 0.x spoke the old email API at `/api/v1`,
+Version 1 is for the new Pidgeon, now Zurchin. 0.x spoke the old email API at `/api/v1`,
 which is being shut down; 0.16.0 is its last.

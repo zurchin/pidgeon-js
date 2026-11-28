@@ -1,7 +1,7 @@
-# Pidgeon for n8n
+# Zurchin for n8n
 
-[Pidgeon](https://pidgeon.ai) gives AI agents email inboxes: their own
-addresses on @pidgeon.email or your domain. This package brings them to n8n:
+[Zurchin](https://zurchin.com) gives AI agents email inboxes: their own
+addresses on @zurchin.email or your domain. This package brings them to n8n:
 give a workflow or an agent its own inbox, start workflows from the mail that
 arrives, and answer it.
 
@@ -9,7 +9,7 @@ Two nodes:
 
 - **Pidgeon Trigger** starts a workflow when mail arrives in an inbox, or when
   a message is held, sent, delivered or bounced, or a draft waits for a
-  person. It makes its own webhook on Pidgeon when the workflow starts
+  person. It makes its own webhook on Zurchin when the workflow starts
   listening, removes it when it stops, and checks every delivery's signature.
 - **Pidgeon** acts:
   - **Message:** Send, Reply, Get, Get Many, Search, and Wait (until mail
@@ -31,17 +31,17 @@ The Pidgeon node works as a tool for n8n's AI Agent node too.
 
 ## The credential
 
-Make an API key at [pidgeon.ai/keys](https://pidgeon.ai/keys), then in n8n
+Make an API key at [zurchin.com/keys](https://zurchin.com/keys), then in n8n
 **Credentials → New → Pidgeon API**, and paste it. Give it the least access
 the workflow needs: `read` to read and wait for mail, `draft` to save drafts,
 `send` to send and reply. A pod's key reaches only that pod's inboxes.
 
 The trigger makes a webhook, and webhooks belong to the whole account: it
-needs an `admin` key of the account, and an n8n that Pidgeon can reach at a
+needs an `admin` key of the account, and an n8n that Zurchin can reach at a
 public `https://` address.
 
 A test key (`pgn_test_…`) works the same, and nothing it sends leaves
-Pidgeon: build on one, then switch to a live key.
+Zurchin: build on one, then switch to a live key.
 
 ## The trigger's item
 
@@ -70,14 +70,14 @@ message itself:
 }
 ```
 
-The text is the clean text by default: Pidgeon's Firewall takes out anything
+The text is the clean text by default: Zurchin's Firewall takes out anything
 hidden or addressed to an AI. Choose **Original** only when you must, and
 never hand it to a model unread. Mail the Firewall calls suspicious can be
 held for a person (`message.held`) before any workflow sees it.
 
 ## Version 1
 
-Version 1 is for the new Pidgeon (`https://pidgeon.ai/v1`). 0.x spoke the old
+Version 1 is for the new Pidgeon, now Zurchin (`https://zurchin.com/v1`). 0.x spoke the old
 email API at `/api/v1`, which is being shut down: workflows built on 0.x need
 their Pidgeon nodes added again, with a new key.
 

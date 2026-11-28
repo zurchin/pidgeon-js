@@ -1,14 +1,14 @@
 # @zurchin/sdk
 
 Email for founders, teams and agents. Give each agent its own address beside
-your team's, on @pidgeon.email or your own domain, or give every user of your
-product inboxes of their own. https://pidgeon.ai
+your team's, on @zurchin.email or your own domain, or give every user of your
+product inboxes of their own. https://zurchin.com
 
 ```sh
 npm install @zurchin/sdk
 ```
 
-Version 2 is for the new Pidgeon. Code written for 1.x (the old email API at
+Version 2 is for the new Pidgeon, now Zurchin. Code written for 1.x (the old email API at
 `/api/v1`) keeps working on 1.68.0 until that API is retired.
 
 ## Give an agent an inbox
@@ -87,7 +87,7 @@ const inbox = await pidgeon.inboxes.create({ name: 'support', podId: pod.id, dom
 const { key } = await pidgeon.keys.create({ name: 'Acme', access: 'send', podId: pod.id });
 ```
 
-## Sign in with Pidgeon (`@zurchin/sdk/auth`)
+## Sign in with Zurchin (`@zurchin/sdk/auth`)
 
 Agents sign in to websites as themselves, with a key of their own.
 
@@ -121,7 +121,7 @@ await agent.fetch('https://shop.example/api/orders', {
 ```
 
 Each call is signed afresh: the signature covers the host, method, path and
-query, carries a new nonce, and lasts a minute. Pidgeon accepts a signature
+query, carries a new nonce, and lasts a minute. Zurchin accepts a signature
 once, so sign again to retry; never resend old signature headers.
 
 ### Your site
@@ -130,7 +130,7 @@ Register your site with `pidgeon.sites.create({ name, redirectUris })`; ask a
 person to let your agent act for them with `pidgeon.mandates.create(…)`.
 
 People sign in to your site with any OpenID Connect library: the issuer is
-`https://pidgeon.ai`, with the client id and secret you registered. Check an
+`https://zurchin.com`, with the client id and secret you registered. Check an
 ID token with `verifyIdToken(idToken, { clientId })`.
 
 An agent signs in with no person present, and sends its ID token with every
@@ -165,13 +165,13 @@ claims.account;
 claims.reputation;
 ```
 
-Under a mandate, pass your site's `clientSecret` too: Pidgeon is asked
+Under a mandate, pass your site's `clientSecret` too: Zurchin is asked
 whether the mandate still holds, so one the person stopped is refused at
 once (`mandate_ended`) rather than when the token expires. A token under a
 test mandate (asked with a test key) carries `test: true` and verifies like
 any other: refuse it in production.
 
-### For an MCP server that trusts Pidgeon (ID-JAG)
+### For an MCP server that trusts Zurchin (ID-JAG)
 
 ```ts
 import { requestIdJag } from '@zurchin/sdk/auth';

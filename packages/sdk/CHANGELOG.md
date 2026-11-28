@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.16.1
+
+- The description and README say Zurchin, zurchin.com and @zurchin.email, not Pidgeon. No code changed.
+
 ## 2.16.0
 
 - Pidgeon is now Zurchin: this version is published as `@zurchin/sdk`, and the last `@zurchin/sdk` (2.16.0) only re-exports it and says so once.

@@ -1,7 +1,7 @@
 {
   "name": "@zurchin/ai-sdk",
-  "version": "1.2.0",
-  "description": "Pidgeon as Vercel AI SDK tools. Email for founders, teams and agents: send, wait for the reply and answer, on @pidgeon.email or your domain. The same tools as Pidgeon's MCP server.",
+  "version": "1.2.1",
+  "description": "Zurchin as Vercel AI SDK tools. Email for founders, teams and agents: send, wait for the reply and answer, on @zurchin.email or your domain. The same tools as Zurchin's MCP server.",
   "license": "MIT",
   "type": "module",
   "repository": {

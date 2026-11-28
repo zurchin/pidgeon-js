@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- The description and README say Zurchin, zurchin.com and @zurchin.email, not Pidgeon. No code changed.
+
 ## 1.1.0
 
 - Pidgeon is now Zurchin: this version is published as `@zurchin/n8n-nodes-zurchin`. `@zurchin/n8n-nodes-zurchin` is deprecated.

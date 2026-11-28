@@ -1,6 +1,6 @@
 {
   "name": "@pidgeon-ai/ai-sdk",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Now @zurchin/ai-sdk: Pidgeon is now Zurchin. This last release re-exports it.",
   "license": "MIT",
   "type": "module",

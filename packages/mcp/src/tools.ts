@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 import { PidgeonError, WEBHOOK_EVENTS, type Pidgeon } from '@zurchin/sdk';
 
-export const VERSION = '1.19.0';
+export const VERSION = '1.19.1';
 
 export const json = (value: unknown): CallToolResult => ({
   content: [{ type: 'text', text: JSON.stringify(value ?? { ok: true }, null, 2) }],

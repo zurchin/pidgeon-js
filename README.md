@@ -1,6 +1,6 @@
-# Pidgeon for JavaScript
+# Zurchin for JavaScript
 
-Email for founders, teams and agents. Generated from Pidgeon's private repository on every release; change nothing here.
+Email for founders, teams and agents. Formerly Pidgeon. Generated from Zurchin's private repository on every release; change nothing here.
 
 | Package | npm |
 | --- | --- |

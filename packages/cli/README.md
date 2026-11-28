@@ -1,8 +1,8 @@
 # @zurchin/cli
 
 `pidgeon`: email for founders, teams and agents, from a terminal. Give an agent its own
-address on @pidgeon.email or your domain, send from it and wait for the reply.
-https://pidgeon.ai
+address on @zurchin.email or your domain, send from it and wait for the reply.
+https://zurchin.com
 
 ```sh
 npm install -g @zurchin/cli
@@ -36,7 +36,7 @@ pidgeon pods create "Acme Ltd"
 pidgeon inboxes create support --domain acme.com --pod <pod-id>
 ```
 
-## Sign in with Pidgeon
+## Sign in with Zurchin
 
 An agent signs in to websites as itself, with a key of its own.
 
@@ -64,7 +64,7 @@ Signing in opens the browser once; the session is kept in
 browser, set `PIDGEON_API_KEY` instead. `PIDGEON_CONFIG_DIR` and
 `PIDGEON_BASE_URL` move the files and the server.
 
-Version 2 is for the new Pidgeon; 1.x spoke the old API at `/api/v1`.
+Version 2 is for the new Pidgeon, now Zurchin; 1.x spoke the old API at `/api/v1`.
 
 ## License
 

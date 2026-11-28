@@ -23,7 +23,7 @@ import {
   signOut,
 } from '@zurchin/sdk/node';
 
-export const VERSION = '2.7.0';
+export const VERSION = '2.7.1';
 
 export type Io = {
   out: (line: string) => void;
